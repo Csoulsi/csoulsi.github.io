@@ -133,7 +133,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">1</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">3</span></a>
 
   </li>
   </ul>
@@ -159,6 +159,148 @@
             
 
   <div class="posts-expand">
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://csoulsi.github.io/2020/02/29/picture/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="csoulsi">
+      <meta itemprop="description" content="远方不一定有诗,但有更好的自己!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="王者荣耀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/29/picture/" class="post-title-link" itemprop="url">picture</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-29 10:39:49" itemprop="dateCreated datePublished" datetime="2020-02-29T10:39:49+08:00">2020-02-29</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://csoulsi.github.io/2020/02/29/numpy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="csoulsi">
+      <meta itemprop="description" content="远方不一定有诗,但有更好的自己!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="王者荣耀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/29/numpy/" class="post-title-link" itemprop="url">使用 Numpy 快速处理数据</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-02-29 06:00:00 / 修改时间：10:49:03" itemprop="dateCreated datePublished" datetime="2020-02-29T06:00:00+08:00">2020-02-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">数据分析</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><blockquote>
+<p>Python中有个非常重要的第三方库 Numpy, 它不仅是Python中使用最多的第三方库，还是 SciPy、Pandas 等数据科学的基础。Numpy 提供的数据结构比Python 自身更高级更高效，是Python 数据分析的基础。</p>
+</blockquote>
+<h1 id="使用-Numpy-更高效"><a href="#使用-Numpy-更高效" class="headerlink" title="使用 Numpy 更高效"></a>使用 Numpy 更高效</h1><blockquote>
+<p>标准 Python 列表保存数组的元素值可以变化的，因此保存的是对象的指针，元素在系统内存中是分散的。而 Numpy 保存的数组存储在一个均匀连续的内存块中  </p>
+</blockquote>
+<h1 id="Numpy-的两个重要对象"><a href="#Numpy-的两个重要对象" class="headerlink" title="Numpy 的两个重要对象"></a>Numpy 的两个重要对象</h1><h2 id="ndarry"><a href="#ndarry" class="headerlink" title="ndarry"></a>ndarry</h2><blockquote>
+<p>ndarry （N-dimensional array object） 解决多维数组的问题  </p>
+</blockquote>
+<blockquote>
+<p>一个ndarry 是具有相同类型和大小的多维容器  </p>
+</blockquote>
+<h3 id="shape-表示数据维的元组"><a href="#shape-表示数据维的元组" class="headerlink" title="shape : 表示数据维的元组"></a>shape : 表示数据维的元组</h3><h3 id="dtype-表示数据的类型"><a href="#dtype-表示数据的类型" class="headerlink" title="dtype : 表示数据的类型"></a>dtype : 表示数据的类型</h3><p>例子:  </p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">尺寸为 <span class="number">2</span> x <span class="number">3</span> 的二维数组  </span><br><span class="line">&gt;&gt;&gt; x = np.array([[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],[<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]],np.int32)  </span><br><span class="line">&gt;&gt;&gt; type(x)</span><br><span class="line">    &lt;class 'numpy.ndarray'&gt;  </span><br><span class="line">&gt;&gt;&gt; x.shape</span><br><span class="line">    (<span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line">x.dtype</span><br><span class="line">    dtype('int32')</span><br></pre></td></tr></table></figure>
+<p><img src="/2020/02/29/numpy/ndarry01.png" alt></p>
+<h2 id="ufunc"><a href="#ufunc" class="headerlink" title="ufunc"></a>ufunc</h2><blockquote>
+<p>ufunc（universal function object）则是解决对数组进行处理的函数  </p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
         
   
   
@@ -303,7 +445,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

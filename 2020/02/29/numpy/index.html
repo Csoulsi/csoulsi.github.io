@@ -20,17 +20,22 @@
     var CONFIG = {"hostname":"csoulsi.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="远方不一定有诗,但有更好的自己!">
-<meta property="og:type" content="website">
-<meta property="og:title" content="王者荣耀">
-<meta property="og:url" content="https://csoulsi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/index.html">
+  <meta name="description" content="引言 Python中有个非常重要的第三方库 Numpy, 它不仅是Python中使用最多的第三方库，还是 SciPy、Pandas 等数据科学的基础。Numpy 提供的数据结构比Python 自身更高级更高效，是Python 数据分析的基础。  使用 Numpy 更高效 标准 Python 列表保存数组的元素值可以变化的，因此保存的是对象的指针，元素在系统内存中是分散的。而 Numpy 保存的数组">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 Numpy 快速处理数据">
+<meta property="og:url" content="https://csoulsi.github.io/2020/02/29/numpy/index.html">
 <meta property="og:site_name" content="王者荣耀">
-<meta property="og:description" content="远方不一定有诗,但有更好的自己!">
+<meta property="og:description" content="引言 Python中有个非常重要的第三方库 Numpy, 它不仅是Python中使用最多的第三方库，还是 SciPy、Pandas 等数据科学的基础。Numpy 提供的数据结构比Python 自身更高级更高效，是Python 数据分析的基础。  使用 Numpy 更高效 标准 Python 列表保存数组的元素值可以变化的，因此保存的是对象的指针，元素在系统内存中是分散的。而 Numpy 保存的数组">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://csoulsi.github.io/2020/02/29/numpy/ndarry01.png">
+<meta property="article:published_time" content="2020-02-28T22:00:00.000Z">
+<meta property="article:modified_time" content="2020-02-29T02:49:03.299Z">
 <meta property="article:author" content="csoulsi">
+<meta property="article:tag" content="技术">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://csoulsi.github.io/2020/02/29/numpy/ndarry01.png">
 
-<link rel="canonical" href="https://csoulsi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/">
+<link rel="canonical" href="https://csoulsi.github.io/2020/02/29/numpy/">
 
 
 <script id="page-configurations">
@@ -38,11 +43,11 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false
+    isPost: true
   };
 </script>
 
-  <title>分类: 数据分析 | 王者荣耀</title>
+  <title>使用 Numpy 快速处理数据 | 王者荣耀</title>
   
 
 
@@ -158,70 +163,110 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h1 class="collection-header">数据分析
-          <small>分类</small>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://csoulsi.github.io/2020/02/29/numpy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="csoulsi">
+      <meta itemprop="description" content="远方不一定有诗,但有更好的自己!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="王者荣耀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用 Numpy 快速处理数据
         </h1>
-      </div>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-02-29 06:00:00 / 修改时间：10:49:03" itemprop="dateCreated datePublished" datetime="2020-02-29T06:00:00+08:00">2020-02-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">数据分析</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <h1 class="collection-header">2020</h1>
-    </div>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-02-29T06:00:00+08:00"
-              content="2020-02-29">
-          02-29
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/02/29/numpy/" itemprop="url">
-            <span itemprop="name">使用 Numpy 快速处理数据</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-02-28T21:57:47+08:00"
-              content="2020-02-28">
-          02-28
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/02/28/hello-world/" itemprop="url">
-            <span itemprop="name">我的第一篇文章</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><blockquote>
+<p>Python中有个非常重要的第三方库 Numpy, 它不仅是Python中使用最多的第三方库，还是 SciPy、Pandas 等数据科学的基础。Numpy 提供的数据结构比Python 自身更高级更高效，是Python 数据分析的基础。</p>
+</blockquote>
+<h1 id="使用-Numpy-更高效"><a href="#使用-Numpy-更高效" class="headerlink" title="使用 Numpy 更高效"></a>使用 Numpy 更高效</h1><blockquote>
+<p>标准 Python 列表保存数组的元素值可以变化的，因此保存的是对象的指针，元素在系统内存中是分散的。而 Numpy 保存的数组存储在一个均匀连续的内存块中  </p>
+</blockquote>
+<h1 id="Numpy-的两个重要对象"><a href="#Numpy-的两个重要对象" class="headerlink" title="Numpy 的两个重要对象"></a>Numpy 的两个重要对象</h1><h2 id="ndarry"><a href="#ndarry" class="headerlink" title="ndarry"></a>ndarry</h2><blockquote>
+<p>ndarry （N-dimensional array object） 解决多维数组的问题  </p>
+</blockquote>
+<blockquote>
+<p>一个ndarry 是具有相同类型和大小的多维容器  </p>
+</blockquote>
+<h3 id="shape-表示数据维的元组"><a href="#shape-表示数据维的元组" class="headerlink" title="shape : 表示数据维的元组"></a>shape : 表示数据维的元组</h3><h3 id="dtype-表示数据的类型"><a href="#dtype-表示数据的类型" class="headerlink" title="dtype : 表示数据的类型"></a>dtype : 表示数据的类型</h3><p>例子:  </p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">尺寸为 <span class="number">2</span> x <span class="number">3</span> 的二维数组  </span><br><span class="line">&gt;&gt;&gt; x = np.array([[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],[<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]],np.int32)  </span><br><span class="line">&gt;&gt;&gt; type(x)</span><br><span class="line">    &lt;class 'numpy.ndarray'&gt;  </span><br><span class="line">&gt;&gt;&gt; x.shape</span><br><span class="line">    (<span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line">x.dtype</span><br><span class="line">    dtype('int32')</span><br></pre></td></tr></table></figure>
+<p><img src="/2020/02/29/numpy/ndarry01.png" alt></p>
+<h2 id="ufunc"><a href="#ufunc" class="headerlink" title="ufunc"></a>ufunc</h2><blockquote>
+<p>ufunc（universal function object）则是解决对数组进行处理的函数  </p>
+</blockquote>
 
     </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/28/hello-world/" rel="prev" title="我的第一篇文章">
+      <i class="fa fa-chevron-left"></i> 我的第一篇文章
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/29/picture/" rel="next" title="picture">
+      picture <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
   </div>
-  
-  
-  
-
-  
-
 
 
           </div>
@@ -272,6 +317,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用-Numpy-更高效"><span class="nav-number">2.</span> <span class="nav-text">使用 Numpy 更高效</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Numpy-的两个重要对象"><span class="nav-number">3.</span> <span class="nav-text">Numpy 的两个重要对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ndarry"><span class="nav-number">3.1.</span> <span class="nav-text">ndarry</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#shape-表示数据维的元组"><span class="nav-number">3.1.1.</span> <span class="nav-text">shape : 表示数据维的元组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dtype-表示数据的类型"><span class="nav-number">3.1.2.</span> <span class="nav-text">dtype : 表示数据的类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ufunc"><span class="nav-number">3.2.</span> <span class="nav-text">ufunc</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
