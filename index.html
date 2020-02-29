@@ -188,7 +188,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-02-29 11:34:08 / 修改时间：12:17:30" itemprop="dateCreated datePublished" datetime="2020-02-29T11:34:08+08:00">2020-02-29</time>
+              <time title="创建时间：2020-02-29 11:34:08 / 修改时间：12:53:34" itemprop="dateCreated datePublished" datetime="2020-02-29T11:34:08+08:00">2020-02-29</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -225,16 +225,21 @@
 </blockquote>
 <p> shape : 表示数据维的元组  </p>
 <p> dtype : 表示数据的类型  </p>
-<p>例子:  </p>
+<p>Example-01 :  尺寸为 2 x 3  的二维数组 </p>
 <figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">尺寸为 <span class="number">2</span> x <span class="number">3</span> 的二维数组  </span><br><span class="line">&gt;&gt;&gt; x = np.array([[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],[<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]],np.int32)  </span><br><span class="line">&gt;&gt;&gt; type(x)</span><br><span class="line">    &lt;class 'numpy.ndarray'&gt;  </span><br><span class="line">&gt;&gt;&gt; x.shape</span><br><span class="line">    (<span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line">x.dtype</span><br><span class="line">    dtype('int32')</span><br></pre></td></tr></table></figure>
 <img src="/2020/02/29/numpy-001-01/numpy-001-01.png" class title="图1 2x3 维数组">
 
-<p>Example-02 :  尺寸为 3 x 3 x 3  的三维维数组  </p>
+<p>Example-02 :  尺寸为 3 x 3 x 3  的三维数组  </p>
 <figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; y = np.array([[ [ <span class="number">0</span>,  <span class="number">1</span>,  <span class="number">2</span>],</span><br><span class="line">                [ <span class="number">3</span>,  <span class="number">4</span>,  <span class="number">5</span>],</span><br><span class="line">                [ <span class="number">6</span>,  <span class="number">7</span>,  <span class="number">8</span>]    ],</span><br><span class="line"></span><br><span class="line">            [   [ <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>],</span><br><span class="line">                [<span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>],</span><br><span class="line">                [<span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>]    ],</span><br><span class="line"></span><br><span class="line">            [   [<span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>],</span><br><span class="line">                [<span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>],</span><br><span class="line">                [<span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>]    ]])</span><br><span class="line">&gt;&gt;&gt; type(y)</span><br><span class="line">    &lt;class 'numpy.ndarray'&gt;</span><br><span class="line">&gt;&gt;&gt; y.shape</span><br><span class="line">    (<span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>)</span><br><span class="line">&gt;&gt;&gt; y.dtype</span><br><span class="line">    dtype('int32')</span><br></pre></td></tr></table></figure>
 <p>三维数组的三个维度：y[0]、y[1]、y[2] 如下图：</p>
-<img src="/2020/02/29/numpy-001-01/numpy-002-01.png" class title="图2 三维维数组 y[0]">
-<img src="/2020/02/29/numpy-001-01/numpy-002-02.png" class title="图2 三维维数组 y[1]">
-<img src="/2020/02/29/numpy-001-01/numpy-002-03.png" class title="图2 三维维数组 y[2]">
+<img src="/2020/02/29/numpy-001-01/numpy-002-01.png" class title="图2 三维维数组 y[0]">  
+<img src="/2020/02/29/numpy-001-01/numpy-002-02.png" class title="图2 三维维数组 y[1]">  
+<img src="/2020/02/29/numpy-001-01/numpy-002-03.png" class title="图2 三维维数组 y[2]">  
+
+<h3 id="可索引可切片"><a href="#可索引可切片" class="headerlink" title="可索引可切片"></a>可索引可切片</h3><p>以上面的二维数组为例：</p>
+<pre><code>&gt;&gt;&gt; x[1,2]
+    6
+</code></pre>  
 <h2 id="ufunc"><a href="#ufunc" class="headerlink" title="ufunc"></a>ufunc</h2><blockquote>
 <p>ufunc（universal function object）则是解决对数组进行处理的函数  </p>
 </blockquote>
