@@ -128,12 +128,12 @@
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">1</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">2</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">2</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">3</span></a>
 
   </li>
   </ul>
@@ -159,6 +159,107 @@
             
 
   <div class="posts-expand">
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://csoulsi.github.io/2020/03/07/mysql8-001-01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="csoulsi">
+      <meta itemprop="description" content="远方不一定有诗,但有更好的自己!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="王者荣耀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/07/mysql8-001-01/" class="post-title-link" itemprop="url">MySQL8.0 新特性 -- 克隆插件</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-03-07 06:30:00 / 修改时间：14:13:23" itemprop="dateCreated datePublished" datetime="2020-03-07T06:30:00+08:00">2020-03-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL8-0/" itemprop="url" rel="index"><span itemprop="name">MySQL8.0</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="克隆插件简介"><a href="#克隆插件简介" class="headerlink" title="克隆插件简介"></a>克隆插件简介</h1><p>从MySQL 8.0.17开始，MySQL提供了一个克隆插件，允许在本地或从远程MySQL服务器实例克隆Innodb数据。</p>
+<p>克隆插件支持复制：<br>    1. 克隆数据<br>    2. 从发送者提取并传输复制坐标，并将其应用于接收者<br>    3. 使用克隆插件来配置组复制成员和复制从属</p>
+<p>更快更高效：<br>与复制大量事务相比，使用克隆插件进行配置要快得多，效率也更高。还可以将组复制成员配置为使用克隆插件作为替代的恢复方法，以便成员自动选择从种子成员中检索组数据的最有效方法。  </p>
+<h2 id="安装克隆插件"><a href="#安装克隆插件" class="headerlink" title="安装克隆插件"></a>安装克隆插件</h2><h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>Version==MySQLl8.0.18  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select version();  </span><br><span class="line">+<span class="comment">-----------+  </span></span><br><span class="line">| version() |  </span><br><span class="line">+<span class="comment">-----------+  </span></span><br><span class="line">| 8.0.18    |  </span><br><span class="line">+<span class="comment">-----------+  </span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+
+<h2 id="明确插件目录"><a href="#明确插件目录" class="headerlink" title="明确插件目录"></a>明确插件目录</h2><p>Default Value：BASEDIR/lib/plugin<br>BASEDIR: MySQL的安装目录: /usr/local/mysql/  </p>
+<p>如果插件想被使用，插件库文件必须位于MySQL的插件目录下  </p>
+<p>现在我的MySQL解压安装到：/opt/soft/mysql80<br>MySQL初始化时必须指定 BASEDIR=/opt/soft/mysql80</p>
+<p>否则启动时报错：<br>[ERROR] [MY-010901] [Server] Can’t open shared library……<br>[ERROR] [MY-010736] [Server] Couldn’t load plugin ……  </p>
+<p>如有必要在配置文件指定： plugin_dir=/opt/soft/mysql80/lib/plugin  </p>
+<h2 id="启动加载插件"><a href="#启动加载插件" class="headerlink" title="启动加载插件"></a>启动加载插件</h2><p>插件名称：mysql_clone.so  </p>
+<ol>
+<li>每次启动时 –plugin-load-add=mysql_clone.so 来加载  </li>
+<li>永久加载 my.cnf 配置文件声明  </li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]  </span><br><span class="line">plugin-<span class="keyword">load</span>-<span class="keyword">add</span>=mysql_clone.so</span><br></pre></td></tr></table></figure>
+
+<h2 id="验证插件"><a href="#验证插件" class="headerlink" title="验证插件"></a>验证插件</h2><p>1.检查 INFORMATION_SCHEMA.PLUGINS  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT PLUGIN_NAME, PLUGIN_STATUS</span><br><span class="line">       FROM INFORMATION_SCHEMA.PLUGINS</span><br><span class="line">       WHERE PLUGIN_NAME = 'clone';</span><br><span class="line">+<span class="comment">------------------------+---------------+</span></span><br><span class="line">| PLUGIN_NAME            | PLUGIN_STATUS |</span><br><span class="line">+<span class="comment">------------------------+---------------+</span></span><br><span class="line">| clone                  | ACTIVE        |</span><br><span class="line">+<span class="comment">------------------------+---------------+</span></span><br></pre></td></tr></table></figure>
+
+<p>2.执行SHOW PLUGINS语句</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show plugins\G  </span><br><span class="line">*************************** 45. row ***************************</span><br><span class="line">   Name: clone</span><br><span class="line"> Status: ACTIVE</span><br><span class="line">   Type: CLONE</span><br><span class="line">Library: mysql_clone.so</span><br><span class="line">License: GPL</span><br><span class="line">45 rows in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+
+<h2 id="控制插件激活状态"><a href="#控制插件激活状态" class="headerlink" title="控制插件激活状态"></a>控制插件激活状态</h2><p>1.插件已注册或加载，防止运行时插件被删除  </p>
+<blockquote>
+<p>–plugin_name=FORCE_PLUS_PERMANENT  </p>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line">plugin-<span class="keyword">load</span>-<span class="keyword">add</span>=mysql_clone.so  </span><br><span class="line"><span class="keyword">clone</span>=FORCE_PLUS_PERMANENT</span><br></pre></td></tr></table></figure>
+
+<p>2.强制服务在插件运行时启动或不启动  </p>
+<blockquote>
+<p>–plugin_name=FORCE<br>告诉服务器插件启动，如果插件初始化失败，服务器不启动; 成功则服务器启动  </p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
         
   
   
@@ -402,14 +503,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
