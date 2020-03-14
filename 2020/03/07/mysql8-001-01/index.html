@@ -28,7 +28,7 @@
 <meta property="og:description" content="克隆插件简介从MySQL 8.0.17开始，MySQL提供了一个克隆插件，允许在本地或从远程MySQL服务器实例克隆InnoDB其中的数据的物理快照。  支持两种克隆方式：本地克隆和远程克隆 支持克隆加密数据 支持克隆压缩数据 支持克隆复制  安装克隆插件准备环境Version&#x3D;&#x3D;MySQLl8.0.18   1234567mysql&gt; select version();  +-------">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-03-06T22:30:00.000Z">
-<meta property="article:modified_time" content="2020-03-14T03:26:28.568Z">
+<meta property="article:modified_time" content="2020-03-14T03:40:20.025Z">
 <meta property="article:author" content="csoulsi">
 <meta property="article:tag" content="技术">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-14 11:26:28" itemprop="dateModified" datetime="2020-03-14T11:26:28+08:00">2020-03-14</time>
+                <time title="修改时间：2020-03-14 11:40:20" itemprop="dateModified" datetime="2020-03-14T11:40:20+08:00">2020-03-14</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -277,7 +277,7 @@
 <blockquote>
 <p>/opt/soft/mysql80/bin/mysqld_safe –defaults-file=/work/mysql_clone/etc/my3009.cnf –user=mysql &amp;  </p>
 </blockquote>
-<h2 id="克隆远程数据"><a href="#克隆远程数据" class="headerlink" title="克隆远程数据"></a>克隆远程数据</h2><h3 id="描述-1"><a href="#描述-1" class="headerlink" title="描述"></a>描述</h3><p>远程克隆就是从远程MySQL服务器实例克隆数据，并将其传输到启动克隆操作的MySQL实例（也就是接受者）</p>
+<h2 id="远程克隆数据"><a href="#远程克隆数据" class="headerlink" title="远程克隆数据"></a>远程克隆数据</h2><h3 id="描述-1"><a href="#描述-1" class="headerlink" title="描述"></a>描述</h3><p>远程克隆就是从远程MySQL服务器实例克隆数据，并将其传输到启动克隆操作的MySQL实例（也就是接受者）</p>
 <h3 id="远程克隆条件"><a href="#远程克隆条件" class="headerlink" title="远程克隆条件"></a>远程克隆条件</h3><p>前提条件： </p>
 <ol>
 <li>在发送者和接受者实例上，克隆插件安装并且激活  </li>
@@ -298,6 +298,20 @@
 <li>一次只能运行一次克隆操作 </li>
 <li>max_allowed_packet至少2M </li>
 </ol>
+<h3 id="实践操作-1"><a href="#实践操作-1" class="headerlink" title="实践操作"></a>实践操作</h3><p>克隆语句：  </p>
+<blockquote>
+<p>CLONE INSTANCE FROM ‘user’@’host’:port<br>IDENTIFIED BY ‘password’<br>[DATA DIRECTORY [=] ‘clone_dir’]<br>[REQUIRE [NO] SSL];  </p>
+</blockquote>
+<p>默认：会尝试启用加密克隆  </p>
+<ol>
+<li><p>初始化两个全新的MySQL实例<br>发送者：MySQL3008 数据目录：/work/mysql3008/var<br>接受者：MySQL3009 数据目录：/work/mysql_clone/var<br>通过配置文件加载安装 克隆插件 </p>
+</li>
+<li><p>创建账号 </p>
+</li>
+</ol>
+<ul>
+<li>发送者：创建具有backup_admin权限的用户<br>mysql&gt; CREATE USER ‘donor_clone_user’@’192.168.10.1’ IDENTIFIED BY ‘123456’;<br>mysql&gt; GRANT BACKUP_ADMIN on <em>.</em> to ‘donor_clone_user’@’192.168.10.2’;  </li>
+</ul>
 <p>未完待续</p>
 
     </div>
@@ -380,7 +394,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#克隆插件简介"><span class="nav-number">1.</span> <span class="nav-text">克隆插件简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装克隆插件"><span class="nav-number">1.1.</span> <span class="nav-text">安装克隆插件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#准备环境"><span class="nav-number">1.1.1.</span> <span class="nav-text">准备环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#明确插件目录"><span class="nav-number">1.1.2.</span> <span class="nav-text">明确插件目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动加载插件"><span class="nav-number">1.1.3.</span> <span class="nav-text">启动加载插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#验证插件"><span class="nav-number">1.1.4.</span> <span class="nav-text">验证插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#控制插件激活状态"><span class="nav-number">1.1.5.</span> <span class="nav-text">控制插件激活状态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#本地克隆数据"><span class="nav-number">1.2.</span> <span class="nav-text">本地克隆数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#描述"><span class="nav-number">1.2.1.</span> <span class="nav-text">描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#克隆语句"><span class="nav-number">1.2.2.</span> <span class="nav-text">克隆语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实践操作"><span class="nav-number">1.2.3.</span> <span class="nav-text">实践操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#克隆远程数据"><span class="nav-number">1.3.</span> <span class="nav-text">克隆远程数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#描述-1"><span class="nav-number">1.3.1.</span> <span class="nav-text">描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#远程克隆条件"><span class="nav-number">1.3.2.</span> <span class="nav-text">远程克隆条件</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#克隆插件简介"><span class="nav-number">1.</span> <span class="nav-text">克隆插件简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装克隆插件"><span class="nav-number">1.1.</span> <span class="nav-text">安装克隆插件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#准备环境"><span class="nav-number">1.1.1.</span> <span class="nav-text">准备环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#明确插件目录"><span class="nav-number">1.1.2.</span> <span class="nav-text">明确插件目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动加载插件"><span class="nav-number">1.1.3.</span> <span class="nav-text">启动加载插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#验证插件"><span class="nav-number">1.1.4.</span> <span class="nav-text">验证插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#控制插件激活状态"><span class="nav-number">1.1.5.</span> <span class="nav-text">控制插件激活状态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#本地克隆数据"><span class="nav-number">1.2.</span> <span class="nav-text">本地克隆数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#描述"><span class="nav-number">1.2.1.</span> <span class="nav-text">描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#克隆语句"><span class="nav-number">1.2.2.</span> <span class="nav-text">克隆语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实践操作"><span class="nav-number">1.2.3.</span> <span class="nav-text">实践操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#远程克隆数据"><span class="nav-number">1.3.</span> <span class="nav-text">远程克隆数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#描述-1"><span class="nav-number">1.3.1.</span> <span class="nav-text">描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#远程克隆条件"><span class="nav-number">1.3.2.</span> <span class="nav-text">远程克隆条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实践操作-1"><span class="nav-number">1.3.3.</span> <span class="nav-text">实践操作</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
