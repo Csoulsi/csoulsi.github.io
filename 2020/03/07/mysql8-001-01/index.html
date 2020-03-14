@@ -28,7 +28,7 @@
 <meta property="og:description" content="克隆插件简介从MySQL 8.0.17开始，MySQL提供了一个克隆插件，允许在本地或从远程MySQL服务器实例克隆InnoDB其中的数据的物理快照。  支持两种克隆方式：本地克隆和远程克隆 支持克隆加密数据 支持克隆压缩数据 支持克隆复制  安装克隆插件准备环境Version&#x3D;&#x3D;MySQLl8.0.18   1234567mysql&gt; select version();  +-------">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-03-06T22:30:00.000Z">
-<meta property="article:modified_time" content="2020-03-14T03:40:20.025Z">
+<meta property="article:modified_time" content="2020-03-14T05:40:05.426Z">
 <meta property="article:author" content="csoulsi">
 <meta property="article:tag" content="技术">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-14 11:40:20" itemprop="dateModified" datetime="2020-03-14T11:40:20+08:00">2020-03-14</time>
+                <time title="修改时间：2020-03-14 13:40:05" itemprop="dateModified" datetime="2020-03-14T13:40:05+08:00">2020-03-14</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -267,16 +267,13 @@
 <p>mysql&gt; create user clone_user@’%’ identified by ‘123456’;<br>mysql&gt; GRANT BACKUP_ADMIN ON <em>.</em> TO ‘clone_user’;</p>
 </blockquote>
 <p>3.执行克隆命令<br>克隆目录：/work/mysql_clone/var<br>克隆目录不能存在；但是目录路径必须存在；且有操作权限（mysql.mysql）</p>
-<blockquote>
-<p>mysql&gt; CLONE LOCAL DATA DIRECTORY = ‘/work/mysql_clone/var’;</p>
-</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CLONE LOCAL DATA DIRECTORY = '/work/mysql_clone/var';</span><br></pre></td></tr></table></figure>
+
 <p>4.恢复实例  </p>
 <p>补全<br>配置目录etc，并修改配置实例端口修改为3009<br>日志目录log，存放错误日志和慢日志文件<br>临时目录tmp，存放pid和socket文件<br>以及配置对应的目录权限  </p>
 <p>/work/mysql_clone<br>├── etc<br>├── log<br>├── tmp<br>└── var   –克隆目录  </p>
 <p>基于克隆出来的 /work/mysql_clone/var 数据目录，我们直接启动3009实例</p>
-<blockquote>
-<p>/opt/soft/mysql80/bin/mysqld_safe –defaults-file=/work/mysql_clone/etc/my3009.cnf –user=mysql &amp;  </p>
-</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell&gt;/opt/soft/mysql80/bin/mysqld_safe --defaults-file=/work/mysql_clone/etc/my3009.cnf --user=mysql &amp;</span><br></pre></td></tr></table></figure>
 <h2 id="远程克隆数据"><a href="#远程克隆数据" class="headerlink" title="远程克隆数据"></a>远程克隆数据</h2><h3 id="描述-1"><a href="#描述-1" class="headerlink" title="描述"></a>描述</h3><p>远程克隆就是从远程MySQL服务器实例克隆数据，并将其传输到启动克隆操作的MySQL实例（也就是接受者）</p>
 <h3 id="远程克隆条件"><a href="#远程克隆条件" class="headerlink" title="远程克隆条件"></a>远程克隆条件</h3><p>前提条件： </p>
 <ol>
@@ -298,7 +295,7 @@
 <li>一次只能运行一次克隆操作 </li>
 <li>max_allowed_packet至少2M </li>
 </ol>
-<h3 id="实践操作-1"><a href="#实践操作-1" class="headerlink" title="实践操作"></a>实践操作</h3><p>克隆语句：  </p>
+<h3 id="实践操作-1"><a href="#实践操作-1" class="headerlink" title="实践操作"></a>实践操作</h3><p>克隆语句：<br>在接受者MySQL上执行的语句：</p>
 <blockquote>
 <p>CLONE INSTANCE FROM ‘user’@’host’:port<br>IDENTIFIED BY ‘password’<br>[DATA DIRECTORY [=] ‘clone_dir’]<br>[REQUIRE [NO] SSL];  </p>
 </blockquote>
@@ -310,7 +307,42 @@
 </li>
 </ol>
 <ul>
-<li>发送者：创建具有backup_admin权限的用户<br>mysql&gt; CREATE USER ‘donor_clone_user’@’192.168.10.1’ IDENTIFIED BY ‘123456’;<br>mysql&gt; GRANT BACKUP_ADMIN on <em>.</em> to ‘donor_clone_user’@’192.168.10.2’;  </li>
+<li><p>2.1 登录发送者MySQL  </p>
+</li>
+<li><p><em>a.创建具有backup_admin权限的用户*</em>  </p>
+   <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE<span class="built_in"> USER </span><span class="string">'donor_clone_user'</span>@<span class="string">'192.168.10.1'</span> IDENTIFIED BY <span class="string">'123456'</span>;</span><br><span class="line">mysql&gt; GRANT BACKUP_ADMIN on *.* <span class="keyword">to</span> <span class="string">'donor_clone_user'</span>@<span class="string">'192.168.10.2'</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>2.2 登录接受者MySQL  </p>
+</li>
+<li><p><em>a.创建具有clone_admin权限的用户*</em>  </p>
+   <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE USER 'recipient_clone_user'@'recipienthost' IDENTIFIED BY '123456';</span><br><span class="line">mysql&gt; GRANT CLONE_ADMIN on *.* to 'recipient_clone_user'@'recipienthost';</span><br></pre></td></tr></table></figure></li>
+<li><p><em>b.将发送者MySQL的地址添加到donor_list中*</em><br>mysql&gt; SET GLOBAL clone_valid_donor_list = ‘donorhost:3008’;  </p>
+</li>
+</ul>
+<ol start="3">
+<li>开始远程克隆  </li>
+</ol>
+<p><strong>记得提前在发送者MySQL写入一些测试数据用于验证</strong><br><strong>用克隆账号：recipient_clone_user@recipienthost 登录接受者MySQL实例，执行克隆操作</strong><br>    <figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">shell</span>&gt;/<span class="meta">opt</span>/soft/mysql80/<span class="keyword">bin/mysql </span>-urecipient_clone_user -hrecipienthost -p -P3009</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p>3.1 默认克隆目录(主要)<br>  <strong>a.删除现有收件人数据目录，替换为克隆数据</strong><br>  <strong>b.执行克隆语句</strong>  </p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CLONE INSTANCE FROM 'donor_clone_user'@'donorhost':3008</span><br><span class="line">       IDENTIFIED BY '123456';</span><br></pre></td></tr></table></figure>
+
+<p>  <strong>c.克隆完成，接受者MySQL会自动重启</strong>  </p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT STAGE, STATE, END_TIME FROM performance_schema.clone_progress;</span><br><span class="line">+<span class="comment">-----------+-----------+----------------------------+</span></span><br><span class="line">| STAGE     | STATE     | END_TIME                   |</span><br><span class="line">+<span class="comment">-----------+-----------+----------------------------+</span></span><br><span class="line">| <span class="keyword">DROP</span> <span class="keyword">DATA</span> | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">12</span>:<span class="number">22</span>:<span class="number">21.311334</span> |</span><br><span class="line">| <span class="keyword">FILE</span> COPY | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">12</span>:<span class="number">22</span>:<span class="number">22.729780</span> |</span><br><span class="line">| PAGE COPY | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">12</span>:<span class="number">22</span>:<span class="number">22.831079</span> |</span><br><span class="line">| <span class="keyword">REDO</span> COPY | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">12</span>:<span class="number">22</span>:<span class="number">22.931449</span> |</span><br><span class="line">| <span class="keyword">FILE</span> <span class="keyword">SYNC</span> | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">12</span>:<span class="number">22</span>:<span class="number">23.118212</span> |</span><br><span class="line">| RESTART   | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">12</span>:<span class="number">22</span>:<span class="number">26.420135</span> |</span><br><span class="line">| <span class="keyword">RECOVERY</span>  | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">12</span>:<span class="number">22</span>:<span class="number">26.732953</span> |</span><br><span class="line">+<span class="comment">-----------+-----------+----------------------------+</span></span><br></pre></td></tr></table></figure>
+<p> <strong>d.验证</strong><br> 此时数据已经变成和donor数据一致<br> 再用recipient_clone_user登录3009，已经连不上了<br> 用原donor账号登录验证测试数据已存在  </p>
+</li>
+<li><p>3.2 指定额外目录克隆<br>  <strong>a.数据被克隆到接受者MySQL所在服务器的指定目录</strong><br>  <strong>b.基于克隆目录恢复一个新的MySQL实例，此处和本地克隆的恢复一样</strong>  </p>
+</li>
+</ul>
+<ul>
+<li>3.3 配置加密克隆  </li>
+<li><em>a.发送者(donor)的客户端证书和秘钥文件对接受者可用*</em><br>   有3个相关文件位于donor数据目录下：<br>   ca.pem: 自签名证书颁发机构（CA）文件。<br>   client-cert.pem: 客户端公钥证书文件<br>   client-key.pem: 客户端私钥文件</li>
+<li><em>b.在收件者MySQL实例上配置SSL<br>（拷贝donor的3个文件到recipient的 etc 目录下,并赋mysql权限）*</em><br>管理员用户登录动态配置以下参数:     <figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like <span class="emphasis">'clone_ssl%'</span>;</span><br><span class="line"><span class="code">+----------------+</span>---------------------------------------+</span><br><span class="line">| Variable<span class="emphasis">_name  | Value                                 |</span></span><br><span class="line"><span class="emphasis">+----------------+---------------------------------------+</span></span><br><span class="line"><span class="emphasis">| clone_</span>ssl<span class="emphasis">_ca   | /work/mysql_</span>clone/etc/ca.pem          |</span><br><span class="line">| clone<span class="emphasis">_ssl_</span>cert | /work/mysql<span class="emphasis">_clone/etc/client-cert.pem |</span></span><br><span class="line"><span class="emphasis">| clone_</span>ssl<span class="emphasis">_key  | /work/mysql_</span>clone/etc/client-key.pem  |</span><br><span class="line"><span class="code">+----------------+</span>---------------------------------------+</span><br></pre></td></tr></table></figure>
+   <strong>c.加密链接并克隆</strong><br>   recipient_clone_user登录，并执行：     <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CLONE INSTANCE FROM 'donor_clone_user'@'donorhost':3008</span><br><span class="line">       IDENTIFIED BY '123456'</span><br><span class="line">       REQUIRE SSL;</span><br></pre></td></tr></table></figure>
+   <strong>d.验证</strong>     <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT STAGE, STATE, END_TIME FROM performance_schema.clone_progress;</span><br><span class="line">+<span class="comment">-----------+-----------+----------------------------+</span></span><br><span class="line">| STAGE     | STATE     | END_TIME                   |</span><br><span class="line">+<span class="comment">-----------+-----------+----------------------------+</span></span><br><span class="line">| <span class="keyword">DROP</span> <span class="keyword">DATA</span> | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">13</span>:<span class="number">22</span>:<span class="number">39.039091</span> |</span><br><span class="line">| <span class="keyword">FILE</span> COPY | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">13</span>:<span class="number">22</span>:<span class="number">40.407540</span> |</span><br><span class="line">| PAGE COPY | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">13</span>:<span class="number">22</span>:<span class="number">40.508822</span> |</span><br><span class="line">| <span class="keyword">REDO</span> COPY | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">13</span>:<span class="number">22</span>:<span class="number">40.609171</span> |</span><br><span class="line">| <span class="keyword">FILE</span> <span class="keyword">SYNC</span> | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">13</span>:<span class="number">22</span>:<span class="number">40.812935</span> |</span><br><span class="line">| RESTART   | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">13</span>:<span class="number">22</span>:<span class="number">44.489856</span> |</span><br><span class="line">| <span class="keyword">RECOVERY</span>  | Completed | <span class="number">2020</span><span class="number">-03</span><span class="number">-14</span> <span class="number">13</span>:<span class="number">22</span>:<span class="number">44.813989</span> |</span><br><span class="line">+<span class="comment">-----------+-----------+----------------------------+</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
 </ul>
 <p>未完待续</p>
 
