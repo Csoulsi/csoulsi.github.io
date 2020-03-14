@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"csoulsi.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="克隆插件简介从MySQL 8.0.17开始，MySQL提供了一个克隆插件，允许在本地或从远程MySQL服务器实例克隆Innodb数据。 克隆插件支持复制：    1. 克隆数据    2. 从发送者提取并传输复制坐标，并将其应用于接收者    3. 使用克隆插件来配置组复制成员和复制从属 更快更高效：与复制大量事务相比，使用克隆插件进行配置要快得多，效率也更高。还可以将组复制成员配置为使用克隆插件">
+  <meta name="description" content="克隆插件简介从MySQL 8.0.17开始，MySQL提供了一个克隆插件，允许在本地或从远程MySQL服务器实例克隆Innodb数据。  支持两种克隆方式：本地克隆和远程克隆 支持克隆加密数据 支持克隆压缩数据 支持克隆复制  安装克隆插件准备环境Version&#x3D;&#x3D;MySQLl8.0.18   1234567mysql&gt; select version();  +-----------+  |">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL8.0 新特性 -- 克隆插件">
 <meta property="og:url" content="https://csoulsi.github.io/2020/03/07/mysql8-001-01/index.html">
 <meta property="og:site_name" content="王者荣耀">
-<meta property="og:description" content="克隆插件简介从MySQL 8.0.17开始，MySQL提供了一个克隆插件，允许在本地或从远程MySQL服务器实例克隆Innodb数据。 克隆插件支持复制：    1. 克隆数据    2. 从发送者提取并传输复制坐标，并将其应用于接收者    3. 使用克隆插件来配置组复制成员和复制从属 更快更高效：与复制大量事务相比，使用克隆插件进行配置要快得多，效率也更高。还可以将组复制成员配置为使用克隆插件">
+<meta property="og:description" content="克隆插件简介从MySQL 8.0.17开始，MySQL提供了一个克隆插件，允许在本地或从远程MySQL服务器实例克隆Innodb数据。  支持两种克隆方式：本地克隆和远程克隆 支持克隆加密数据 支持克隆压缩数据 支持克隆复制  安装克隆插件准备环境Version&#x3D;&#x3D;MySQLl8.0.18   1234567mysql&gt; select version();  +-----------+  |">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-03-06T22:30:00.000Z">
-<meta property="article:modified_time" content="2020-03-12T17:16:25.899Z">
+<meta property="article:modified_time" content="2020-03-14T02:19:56.177Z">
 <meta property="article:author" content="csoulsi">
 <meta property="article:tag" content="技术">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-13 01:16:25" itemprop="dateModified" datetime="2020-03-13T01:16:25+08:00">2020-03-13</time>
+                <time title="修改时间：2020-03-14 10:19:56" itemprop="dateModified" datetime="2020-03-14T10:19:56+08:00">2020-03-14</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -220,8 +220,12 @@
 
       
         <h1 id="克隆插件简介"><a href="#克隆插件简介" class="headerlink" title="克隆插件简介"></a>克隆插件简介</h1><p>从MySQL 8.0.17开始，MySQL提供了一个克隆插件，允许在本地或从远程MySQL服务器实例克隆Innodb数据。</p>
-<p>克隆插件支持复制：<br>    1. 克隆数据<br>    2. 从发送者提取并传输复制坐标，并将其应用于接收者<br>    3. 使用克隆插件来配置组复制成员和复制从属</p>
-<p>更快更高效：<br>与复制大量事务相比，使用克隆插件进行配置要快得多，效率也更高。还可以将组复制成员配置为使用克隆插件作为替代的恢复方法，以便成员自动选择从种子成员中检索组数据的最有效方法。  </p>
+<ul>
+<li>支持两种克隆方式：本地克隆和远程克隆</li>
+<li>支持克隆加密数据</li>
+<li>支持克隆压缩数据</li>
+<li>支持克隆复制</li>
+</ul>
 <h2 id="安装克隆插件"><a href="#安装克隆插件" class="headerlink" title="安装克隆插件"></a>安装克隆插件</h2><h3 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h3><p>Version==MySQLl8.0.18  </p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select version();  </span><br><span class="line">+<span class="comment">-----------+  </span></span><br><span class="line">| version() |  </span><br><span class="line">+<span class="comment">-----------+  </span></span><br><span class="line">| 8.0.18    |  </span><br><span class="line">+<span class="comment">-----------+  </span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
 
