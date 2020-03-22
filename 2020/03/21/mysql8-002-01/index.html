@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"csoulsi.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="1. 今天是周末吃饭|睡觉|学习1一天三顿饭、睡够八小时、学习到深夜   2. 猥琐发育 别出去浪1特殊时期宅在家里   3. 在自己网站上发布了第一篇文章1$ hello  world ! More info: Deployment">
+  <meta name="description" content="组复制简介">
 <meta property="og:type" content="article">
-<meta property="og:title" content="我的第一篇文章">
-<meta property="og:url" content="https://csoulsi.github.io/2020/02/28/hello-world/index.html">
+<meta property="og:title" content="MySQL8.0 组复制的两种模式">
+<meta property="og:url" content="https://csoulsi.github.io/2020/03/21/mysql8-002-01/index.html">
 <meta property="og:site_name" content="王者荣耀">
-<meta property="og:description" content="1. 今天是周末吃饭|睡觉|学习1一天三顿饭、睡够八小时、学习到深夜   2. 猥琐发育 别出去浪1特殊时期宅在家里   3. 在自己网站上发布了第一篇文章1$ hello  world ! More info: Deployment">
+<meta property="og:description" content="组复制简介">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-02-28T13:57:47.000Z">
-<meta property="article:modified_time" content="2020-02-28T14:28:44.000Z">
+<meta property="article:published_time" content="2020-03-20T22:30:00.000Z">
+<meta property="article:modified_time" content="2020-03-22T06:50:05.675Z">
 <meta property="article:author" content="csoulsi">
 <meta property="article:tag" content="技术">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://csoulsi.github.io/2020/02/28/hello-world/">
+<link rel="canonical" href="https://csoulsi.github.io/2020/03/21/mysql8-002-01/">
 
 
 <script id="page-configurations">
@@ -45,7 +45,7 @@
   };
 </script>
 
-  <title>我的第一篇文章 | 王者荣耀</title>
+  <title>MySQL8.0 组复制的两种模式 | 王者荣耀</title>
   
 
 
@@ -166,7 +166,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://csoulsi.github.io/2020/02/28/hello-world/">
+    <link itemprop="mainEntityOfPage" href="https://csoulsi.github.io/2020/03/21/mysql8-002-01/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -179,7 +179,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          我的第一篇文章
+          MySQL8.0 组复制的两种模式
         </h1>
 
         <div class="post-meta">
@@ -188,17 +188,23 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-02-28 21:57:47 / 修改时间：22:28:44" itemprop="dateCreated datePublished" datetime="2020-02-28T21:57:47+08:00">2020-02-28</time>
+              <time title="创建时间：2020-03-21 06:30:00" itemprop="dateCreated datePublished" datetime="2020-03-21T06:30:00+08:00">2020-03-21</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-22 14:50:05" itemprop="dateModified" datetime="2020-03-22T14:50:05+08:00">2020-03-22</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">数据分析</span></a>
+                  <a href="/categories/MySQL8-0/" itemprop="url" rel="index"><span itemprop="name">MySQL8.0</span></a>
                 </span>
             </span>
 
@@ -213,15 +219,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="1-今天是周末"><a href="#1-今天是周末" class="headerlink" title="1. 今天是周末"></a>1. 今天是周末</h2><h3 id="吃饭-睡觉-学习"><a href="#吃饭-睡觉-学习" class="headerlink" title="吃饭|睡觉|学习"></a>吃饭|睡觉|学习</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">一天三顿饭、睡够八小时、学习到深夜</span><br></pre></td></tr></table></figure>
-
-
-<h3 id="2-猥琐发育-别出去浪"><a href="#2-猥琐发育-别出去浪" class="headerlink" title="2. 猥琐发育 别出去浪"></a>2. 猥琐发育 别出去浪</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">特殊时期宅在家里</span><br></pre></td></tr></table></figure>
-
-
-<h3 id="3-在自己网站上发布了第一篇文章"><a href="#3-在自己网站上发布了第一篇文章" class="headerlink" title="3. 在自己网站上发布了第一篇文章"></a>3. 在自己网站上发布了第一篇文章</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hello  world !</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://csoulsi.github.io/">Deployment</a></p>
-
+        <h1 id="组复制简介"><a href="#组复制简介" class="headerlink" title="组复制简介"></a>组复制简介</h1><a id="more"></a>
     </div>
 
     
@@ -238,11 +236,11 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2020/02/29/numpy-001-01/" rel="next" title="用 numpy 快速处理数据">
-      用 numpy 快速处理数据 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/03/07/mysql8-001-01/" rel="prev" title="MySQL8.0 新特性 -- 克隆插件">
+      <i class="fa fa-chevron-left"></i> MySQL8.0 新特性 -- 克隆插件
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -302,7 +300,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-今天是周末"><span class="nav-number">1.</span> <span class="nav-text">1. 今天是周末</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#吃饭-睡觉-学习"><span class="nav-number">1.1.</span> <span class="nav-text">吃饭|睡觉|学习</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-猥琐发育-别出去浪"><span class="nav-number">1.2.</span> <span class="nav-text">2. 猥琐发育 别出去浪</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-在自己网站上发布了第一篇文章"><span class="nav-number">1.3.</span> <span class="nav-text">3. 在自己网站上发布了第一篇文章</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#组复制简介"><span class="nav-number">1.</span> <span class="nav-text">组复制简介</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
