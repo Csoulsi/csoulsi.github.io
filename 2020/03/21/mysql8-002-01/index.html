@@ -20,18 +20,20 @@
     var CONFIG = {"hostname":"csoulsi.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="组复制简介">
+  <meta name="description" content="MGR 简介MySQL Group Replication（简称：MGR），MySQL组复制是一个MySQL Server 插件，能够创建弹性、高可用、容错复制拓扑。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL8.0 组复制的两种模式">
 <meta property="og:url" content="https://csoulsi.github.io/2020/03/21/mysql8-002-01/index.html">
 <meta property="og:site_name" content="王者荣耀">
-<meta property="og:description" content="组复制简介">
+<meta property="og:description" content="MGR 简介MySQL Group Replication（简称：MGR），MySQL组复制是一个MySQL Server 插件，能够创建弹性、高可用、容错复制拓扑。">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://csoulsi.github.io/2020/03/21/mysql8-002-01/mysql8-002-01.png">
 <meta property="article:published_time" content="2020-03-20T22:30:00.000Z">
-<meta property="article:modified_time" content="2020-03-22T06:50:05.675Z">
+<meta property="article:modified_time" content="2020-03-22T13:54:11.089Z">
 <meta property="article:author" content="csoulsi">
 <meta property="article:tag" content="技术">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://csoulsi.github.io/2020/03/21/mysql8-002-01/mysql8-002-01.png">
 
 <link rel="canonical" href="https://csoulsi.github.io/2020/03/21/mysql8-002-01/">
 
@@ -196,7 +198,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-22 14:50:05" itemprop="dateModified" datetime="2020-03-22T14:50:05+08:00">2020-03-22</time>
+                <time title="修改时间：2020-03-22 21:54:11" itemprop="dateModified" datetime="2020-03-22T21:54:11+08:00">2020-03-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -219,7 +221,45 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="组复制简介"><a href="#组复制简介" class="headerlink" title="组复制简介"></a>组复制简介</h1><a id="more"></a>
+        <h1 id="MGR-简介"><a href="#MGR-简介" class="headerlink" title="MGR 简介"></a>MGR 简介</h1><p>MySQL Group Replication（简称：MGR），MySQL组复制是一个MySQL Server 插件，能够创建弹性、高可用、容错复制拓扑。</p>
+<a id="more"></a>
+
+
+<h1 id="单主模式"><a href="#单主模式" class="headerlink" title="单主模式"></a>单主模式</h1><h2 id="开启单主"><a href="#开启单主" class="headerlink" title="开启单主"></a>开启单主</h2><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">group_replication_single_primary_mode</span>=<span class="literal">ON</span></span><br></pre></td></tr></table></figure>
+<p>在单主模式中，组中只有一个主节点，通常是组中第一个引导启动的节点，<br>它的状态会设置成：read-write 模式。其它节点加入组中，并且自动设置成：read-only （super_read_only=ON）模式。</p>
+<h2 id="只读参数"><a href="#只读参数" class="headerlink" title="只读参数"></a>只读参数</h2><figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">两个只读系统变量启用的区别： </span><br><span class="line">read_only       : 只允许具有<span class="type">SUPER</span>权限的客户端更新  </span><br><span class="line">super_read_only : 阻止所有<span class="type">update</span>更新，以及涉及表更改的操作</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h2 id="单节点写入"><a href="#单节点写入" class="headerlink" title="单节点写入"></a>单节点写入</h2><p>单主模式强制要求一个主节点写入，因此组状态出于单主模式或者想由多主切换为单主，必须关闭一个参数：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">group_replication_enforce_update_everywhere_checks</span>=<span class="literal">OFF</span></span><br></pre></td></tr></table></figure>
+<h2 id="成员变成主节点"><a href="#成员变成主节点" class="headerlink" title="成员变成主节点"></a>成员变成主节点</h2><blockquote>
+<ol>
+<li>现有主节点自愿或者意外离开组  </li>
+<li>通过自定义函数指定： group_replication_set_as_primary()  </li>
+<li>有多主切换到单主模式  </li>
+</ol>
+</blockquote>
+<h2 id="新主节点选举"><a href="#新主节点选举" class="headerlink" title="新主节点选举"></a>新主节点选举</h2><p>当新的主节点选举出来或指定后，可能会有一些积压的更新已经在旧的主节点上应用，但还没应用在新的主节点上，直到新节点追上旧的节点。此时，更新事务可能导致冲突或回滚，只读节点可能会读到旧的数据。 </p>
+<p>复制中的流控制能够有效缩小快慢成员节点的数据差异，减少发生此事发生的几率。</p>
+<p>也可以通过配置系统参数：group_replication_consistency 来控制事务一致性的级别</p>
+<img src="/2020/03/21/mysql8-002-01/mysql8-002-01.png" class title="图1 single-primary-election">
+
+<h2 id="选举算法"><a href="#选举算法" class="headerlink" title="选举算法"></a>选举算法</h2><p>每个组成员查看最新的组视图，排序有潜力成为主节点的成员，根据MySQL服务器版本中的主节点选举算法，在本地做出决定，选出最合适的节点。</p>
+<h3 id="选举考虑因素"><a href="#选举考虑因素" class="headerlink" title="选举考虑因素"></a>选举考虑因素</h3><p>1.成员运行的最低版本  </p>
+<blockquote>
+<p>版本在8.0.17及以上， 首先按最新发行的补丁版本排序<br>版本5.7 以及小于8.0.16 首先按发布的主要版本排序，补丁忽略  </p>
+</blockquote>
+<p>2.如有一个以上的成员运行最低版本  </p>
+<blockquote>
+<p>按照成员权重：group_replication_member_weight<br>如果有任何一个是5.7版本，权重不能用，忽略此因素  </p>
+</blockquote>
+<p>3.如果有多个成员运行最低版本，并且其中有多个成员有最高权重 </p>
+<blockquote>
+<p>server_uuid 小的优先  </p>
+</blockquote>
+<h1 id="多主模式"><a href="#多主模式" class="headerlink" title="多主模式"></a>多主模式</h1>
     </div>
 
     
@@ -300,7 +340,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#组复制简介"><span class="nav-number">1.</span> <span class="nav-text">组复制简介</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MGR-简介"><span class="nav-number">1.</span> <span class="nav-text">MGR 简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#单主模式"><span class="nav-number">2.</span> <span class="nav-text">单主模式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#开启单主"><span class="nav-number">2.1.</span> <span class="nav-text">开启单主</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#只读参数"><span class="nav-number">2.2.</span> <span class="nav-text">只读参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单节点写入"><span class="nav-number">2.3.</span> <span class="nav-text">单节点写入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#成员变成主节点"><span class="nav-number">2.4.</span> <span class="nav-text">成员变成主节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新主节点选举"><span class="nav-number">2.5.</span> <span class="nav-text">新主节点选举</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#选举算法"><span class="nav-number">2.6.</span> <span class="nav-text">选举算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#选举考虑因素"><span class="nav-number">2.6.1.</span> <span class="nav-text">选举考虑因素</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#多主模式"><span class="nav-number">3.</span> <span class="nav-text">多主模式</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
