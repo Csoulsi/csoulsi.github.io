@@ -29,7 +29,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://csoulsi.github.io/2020/03/21/mysql8-002-01/mysql8-002-01.png">
 <meta property="article:published_time" content="2020-03-20T22:30:00.000Z">
-<meta property="article:modified_time" content="2020-03-22T13:54:11.089Z">
+<meta property="article:modified_time" content="2020-03-22T15:35:04.059Z">
 <meta property="article:author" content="csoulsi">
 <meta property="article:tag" content="技术">
 <meta name="twitter:card" content="summary">
@@ -138,7 +138,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">4</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">5</span></a>
 
   </li>
   </ul>
@@ -198,7 +198,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-22 21:54:11" itemprop="dateModified" datetime="2020-03-22T21:54:11+08:00">2020-03-22</time>
+                <time title="修改时间：2020-03-22 23:35:04" itemprop="dateModified" datetime="2020-03-22T23:35:04+08:00">2020-03-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -238,7 +238,7 @@
 <ol>
 <li>现有主节点自愿或者意外离开组  </li>
 <li>通过自定义函数指定： group_replication_set_as_primary()  </li>
-<li>有多主切换到单主模式  </li>
+<li>由多主切换到单主模式  </li>
 </ol>
 </blockquote>
 <h2 id="新主节点选举"><a href="#新主节点选举" class="headerlink" title="新主节点选举"></a>新主节点选举</h2><p>当新的主节点选举出来或指定后，可能会有一些积压的更新已经在旧的主节点上应用，但还没应用在新的主节点上，直到新节点追上旧的节点。此时，更新事务可能导致冲突或回滚，只读节点可能会读到旧的数据。 </p>
@@ -249,7 +249,7 @@
 <h2 id="选举算法"><a href="#选举算法" class="headerlink" title="选举算法"></a>选举算法</h2><p>每个组成员查看最新的组视图，排序有潜力成为主节点的成员，根据MySQL服务器版本中的主节点选举算法，在本地做出决定，选出最合适的节点。</p>
 <h3 id="选举考虑因素"><a href="#选举考虑因素" class="headerlink" title="选举考虑因素"></a>选举考虑因素</h3><p>1.成员运行的最低版本  </p>
 <blockquote>
-<p>版本在8.0.17及以上， 首先按最新发行的补丁版本排序<br>版本5.7 以及小于8.0.16 首先按发布的主要版本排序，补丁忽略  </p>
+<p>版本在8.0.17及以上，首先按最新发行的补丁版本排序<br>版本5.7 以及小于8.0.16 首先按发布的主要版本排序，补丁忽略  </p>
 </blockquote>
 <p>2.如有一个以上的成员运行最低版本  </p>
 <blockquote>
@@ -280,7 +280,10 @@
     <a href="/2020/03/07/mysql8-001-01/" rel="prev" title="MySQL8.0 新特性 -- 克隆插件">
       <i class="fa fa-chevron-left"></i> MySQL8.0 新特性 -- 克隆插件
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/28/mysql8-002-02/" rel="next" title="MySQL8.0 MGR部署">
+      MySQL8.0 MGR部署 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -356,7 +359,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
