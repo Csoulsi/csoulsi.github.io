@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"csoulsi.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="InnoDB Cluster 介绍MySQL InnoDB 集群为 MySQL 提供了完整的高可用性解决方案。 MySQL Shell包含AdminAPI，能轻松配置和管理MySQL实例组，组内的每个MySQL实例都运行MGR，MGR提供了InnoDB集群内部数据复制和内置的故障转移功能。 MySQL Router 能够根据部署的集群进行自我配置，将连接客户端的应用转移到后端服务器实例上。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL InnoDB Cluster 实战">
+<meta property="og:url" content="https://csoulsi.github.io/2020/04/12/mysql8-003-01/index.html">
+<meta property="og:site_name" content="王者荣耀">
+<meta property="og:description" content="InnoDB Cluster 介绍MySQL InnoDB 集群为 MySQL 提供了完整的高可用性解决方案。 MySQL Shell包含AdminAPI，能轻松配置和管理MySQL实例组，组内的每个MySQL实例都运行MGR，MGR提供了InnoDB集群内部数据复制和内置的故障转移功能。 MySQL Router 能够根据部署的集群进行自我配置，将连接客户端的应用转移到后端服务器实例上。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://csoulsi.github.io/2020/04/12/mysql8-003-01/mysql8-003-01.png">
+<meta property="article:published_time" content="2020-04-12T04:34:08.000Z">
+<meta property="article:modified_time" content="2020-04-12T13:36:48.692Z">
+<meta property="article:author" content="csoulsi">
+<meta property="article:tag" content="技术">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://csoulsi.github.io/2020/04/12/mysql8-003-01/mysql8-003-01.png">
+
+<link rel="canonical" href="https://csoulsi.github.io/2020/04/12/mysql8-003-01/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>MySQL InnoDB Cluster 实战 | 王者荣耀</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">王者荣耀</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">记录分享工作的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">1</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">3</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">6</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://csoulsi.github.io/2020/04/12/mysql8-003-01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="csoulsi">
+      <meta itemprop="description" content="远方不一定有诗,但有更好的自己!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="王者荣耀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MySQL InnoDB Cluster 实战
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-12 12:34:08 / 修改时间：21:36:48" itemprop="dateCreated datePublished" datetime="2020-04-12T12:34:08+08:00">2020-04-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/mysql8-0/" itemprop="url" rel="index"><span itemprop="name">mysql8.0</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="InnoDB-Cluster-介绍"><a href="#InnoDB-Cluster-介绍" class="headerlink" title="InnoDB Cluster 介绍"></a>InnoDB Cluster 介绍</h1><p>MySQL InnoDB 集群为 MySQL 提供了完整的高可用性解决方案。 MySQL Shell包含AdminAPI，能轻松配置和管理MySQL实例组，组内的每个MySQL实例都运行MGR，MGR提供了InnoDB集群内部数据复制和内置的故障转移功能。 MySQL Router 能够根据部署的集群进行自我配置，将连接客户端的应用转移到后端服务器实例上。</p>
+<a id="more"></a>
+
+<h1 id="InnoDB-Cluster-概述"><a href="#InnoDB-Cluster-概述" class="headerlink" title="InnoDB Cluster 概述"></a>InnoDB Cluster 概述</h1><img src="/2020/04/12/mysql8-003-01/mysql8-003-01.png" class title="图1 InnoDB Cluster 集群">  
+
+<p>如图所示，3个MySQL server 实例，组成了单主模式的高可用集群；MySQL router 负责将客户端应用的连接请求转发到后端MySQL实例上；MySQL Shell包含AdminAPI，可通过dba全局变量部署，配置和管理InnoDB的集群。  </p>
+<h1 id="InnoDB-Cluster-创建"><a href="#InnoDB-Cluster-创建" class="headerlink" title="InnoDB Cluster 创建"></a>InnoDB Cluster 创建</h1><h2 id="连接实例"><a href="#连接实例" class="headerlink" title="连接实例"></a>连接实例</h2><p>通过MySQL shell 连接任意一个实例：<br>cd /opt/soft/mysqlshell<br><strong>./mysqlsh –mysql –uri root@localhost:3008</strong><br>……<br>Server version: 8.0.18 MySQL Community Server - GPL<br>No default schema selected; type \use <schema> to set one.<br><strong>MySQL  localhost:3008 ssl  JS &gt;</strong></schema></p>
+<h2 id="创建集群"><a href="#创建集群" class="headerlink" title="创建集群"></a>创建集群</h2><p>准备好MySQL实例，基于单主模式的MGR之前已经部署好（上一篇文章），需要创建一个 Cluster，将MGR实例加入到该集群中。<br>在MySQL shell 中，通过 dba.createCluster() 方法创建集群：testcluster </p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">MySQL  localhost:3008 ssl  JS &gt; *<span class="number">*dba</span>.createCluster(<span class="string">'testcluster'</span>)**</span><br><span class="line">A new InnoDB cluster will be created on<span class="built_in"> instance </span><span class="string">'localhost:3008'</span>.</span><br><span class="line"></span><br><span class="line">You are connected <span class="keyword">to</span> an<span class="built_in"> instance </span>that belongs <span class="keyword">to</span> an unmanaged replication group.</span><br><span class="line"><span class="keyword">Do</span> you want <span class="keyword">to</span> setup an InnoDB cluster based on this replication group? [Y/n]: Y</span><br><span class="line"></span><br><span class="line">Creating InnoDB cluster <span class="string">'testcluster'</span> on <span class="string">'bjm6-184-40.com.cn:3008'</span><span class="built_in">..</span>.</span><br><span class="line"></span><br><span class="line">Adding Seed Instance<span class="built_in">..</span>.</span><br><span class="line">Adding<span class="built_in"> Instance </span><span class="string">'bjm6-184-40.com.cn:3008'</span><span class="built_in">..</span>.</span><br><span class="line">Adding<span class="built_in"> Instance </span><span class="string">'bjm6-196-59.com.cn:3009'</span><span class="built_in">..</span>.</span><br><span class="line">Adding<span class="built_in"> Instance </span><span class="string">'bjm6-196-85.com.cn:3010'</span><span class="built_in">..</span>.</span><br><span class="line">Resetting distributed recovery credentials across the cluster<span class="built_in">..</span>.</span><br><span class="line">Cluster successfully created based on existing replication group.</span><br><span class="line"></span><br><span class="line">&lt;Cluster:testcluster&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="查看集群状态"><a href="#查看集群状态" class="headerlink" title="查看集群状态"></a>查看集群状态</h2><h3 id="集群状态"><a href="#集群状态" class="headerlink" title="集群状态"></a>集群状态</h3><p>在MySQL shell 中创建一个 <strong>Cluster</strong> 对象，方便后面进一步对集群操作</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"> MySQL  <span class="string">localhost:</span><span class="number">3008</span> ssl  JS &gt; var cluster = dba.getCluster()</span><br><span class="line"> MySQL  <span class="string">localhost:</span><span class="number">3008</span> ssl  JS &gt; cluster.status()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"clusterName"</span>: <span class="string">"testcluster"</span>,</span><br><span class="line">    <span class="string">"defaultReplicaSet"</span>: &#123;</span><br><span class="line">        <span class="string">"name"</span>: <span class="string">"default"</span>,</span><br><span class="line">        <span class="string">"primary"</span>: <span class="string">"bjm6-184-40.com.cn:3008"</span>,</span><br><span class="line">        <span class="string">"ssl"</span>: <span class="string">"DISABLED"</span>,</span><br><span class="line">        <span class="string">"status"</span>: <span class="string">"OK"</span>,</span><br><span class="line">        <span class="string">"statusText"</span>: <span class="string">"Cluster is ONLINE and can tolerate up to ONE failure."</span>,</span><br><span class="line">        <span class="string">"topology"</span>: &#123;</span><br><span class="line">            <span class="string">"bjm6-184-40.com.cn:3008"</span>: &#123;</span><br><span class="line">                <span class="string">"address"</span>: <span class="string">"bjm6-184-40.com.cn:3008"</span>,</span><br><span class="line">                <span class="string">"mode"</span>: <span class="string">"R/W"</span>,</span><br><span class="line">                <span class="string">"readReplicas"</span>: &#123;&#125;,</span><br><span class="line">                <span class="string">"replicationLag"</span>: <span class="literal">null</span>,</span><br><span class="line">                <span class="string">"role"</span>: <span class="string">"HA"</span>,</span><br><span class="line">                <span class="string">"status"</span>: <span class="string">"ONLINE"</span>,</span><br><span class="line">                <span class="string">"version"</span>: <span class="string">"8.0.18"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"bjm6-196-59.com.cn:3009"</span>: &#123;</span><br><span class="line">                <span class="string">"address"</span>: <span class="string">"bjm6-196-59.com.cn:3009"</span>,</span><br><span class="line">                <span class="string">"mode"</span>: <span class="string">"R/O"</span>,</span><br><span class="line">                <span class="string">"readReplicas"</span>: &#123;&#125;,</span><br><span class="line">                <span class="string">"replicationLag"</span>: <span class="literal">null</span>,</span><br><span class="line">                <span class="string">"role"</span>: <span class="string">"HA"</span>,</span><br><span class="line">                <span class="string">"status"</span>: <span class="string">"ONLINE"</span>,</span><br><span class="line">                <span class="string">"version"</span>: <span class="string">"8.0.18"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"bjm6-196-85.com.cn:3010"</span>: &#123;</span><br><span class="line">                <span class="string">"address"</span>: <span class="string">"bjm6-196-85.com.cn:3010"</span>,</span><br><span class="line">                <span class="string">"mode"</span>: <span class="string">"R/O"</span>,</span><br><span class="line">                <span class="string">"readReplicas"</span>: &#123;&#125;,</span><br><span class="line">                <span class="string">"replicationLag"</span>: <span class="literal">null</span>,</span><br><span class="line">                <span class="string">"role"</span>: <span class="string">"HA"</span>,</span><br><span class="line">                <span class="string">"status"</span>: <span class="string">"ONLINE"</span>,</span><br><span class="line">                <span class="string">"version"</span>: <span class="string">"8.0.18"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">"topologyMode"</span>: <span class="string">"Single-Primary"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"groupInformationSourceMember"</span>: <span class="string">"bjm6-184-40.com.cn:3008"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="集群描述"><a href="#集群描述" class="headerlink" title="集群描述"></a>集群描述</h3><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"> MySQL  localhost:<span class="number">3008</span> ssl  JS &gt; <span class="keyword">cluster</span>.name</span><br><span class="line">testcluster</span><br><span class="line"> MySQL  localhost:<span class="number">3008</span> ssl  JS &gt; <span class="keyword">cluster</span>.describe()</span><br><span class="line">&#123;</span><br><span class="line">    "clusterName": "testcluster",</span><br><span class="line">    "defaultReplicaSet": &#123;</span><br><span class="line">        "name": "default",</span><br><span class="line">        "topology": [</span><br><span class="line">            &#123;</span><br><span class="line">                "address": "bjm6-184-40.com.cn:3008",</span><br><span class="line">                "label": "bjm6-184-40.com.cn:3008",</span><br><span class="line">                "role": "HA"</span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">                "address": "bjm6-196-59.com.cn:3009",</span><br><span class="line">                "label": "bjm6-196-59.com.cn:3009",</span><br><span class="line">                "role": "HA"</span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">                "address": "bjm6-196-85.com.cn:3010",</span><br><span class="line">                "label": "bjm6-196-85.com.cn:3010",</span><br><span class="line">                "role": "HA"</span><br><span class="line">            &#125;</span><br><span class="line">        ],</span><br><span class="line">        "topologyMode": "Single-Primary"</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="常用方法"><a href="#常用方法" class="headerlink" title="常用方法"></a>常用方法</h3><figure class="highlight isbl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"> <span class="variable">MySQL</span>  <span class="variable">localhost</span>:<span class="number">3008</span> <span class="variable">ssl</span>  <span class="variable">JS</span> &gt; <span class="variable">cluster</span>.</span><br><span class="line"><span class="function"><span class="title">addInstance</span>()                    <span class="title">rejoinInstance</span>()</span></span><br><span class="line"><span class="function"><span class="title">checkInstanceState</span>()             <span class="title">removeInstance</span>()</span></span><br><span class="line"><span class="function"><span class="title">describe</span>()                       <span class="title">removeRouterMetadata</span>()</span></span><br><span class="line"><span class="function"><span class="title">disconnect</span>()                     <span class="title">rescan</span>()</span></span><br><span class="line"><span class="function"><span class="title">dissolve</span>()                       <span class="title">resetRecoveryAccountsPassword</span>()</span></span><br><span class="line"><span class="function"><span class="title">forceQuorumUsingPartitionOf</span>()    <span class="title">setInstanceOption</span>()</span></span><br><span class="line"><span class="function"><span class="title">getName</span>()                        <span class="title">setOption</span>()</span></span><br><span class="line"><span class="function"><span class="title">help</span>()                           <span class="title">setPrimaryInstance</span>()</span></span><br><span class="line"><span class="function"><span class="title">listRouters</span>()                    <span class="title">status</span>()</span></span><br><span class="line"><span class="variable">name</span>                             <span class="function"><span class="title">switchToMultiPrimaryMode</span>()</span></span><br><span class="line"><span class="function"><span class="title">options</span>()                        <span class="title">switchToSinglePrimaryMode</span>()</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="生成集群元数据"><a href="#生成集群元数据" class="headerlink" title="生成集群元数据"></a>生成集群元数据</h3><p>当创建好集群后，会生成元数据库</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show tables;</span><br><span class="line">+-----------------------------------------+</span><br><span class="line">|<span class="string"> Tables_in_mysql_innodb_cluster_metadata </span>|</span><br><span class="line">+-----------------------------------------+</span><br><span class="line">|<span class="string"> async_cluster_members                   </span>|</span><br><span class="line">|<span class="string"> async_cluster_views                     </span>|</span><br><span class="line">|<span class="string"> clusters                                </span>|</span><br><span class="line">|<span class="string"> instances                               </span>|</span><br><span class="line">|<span class="string"> router_rest_accounts                    </span>|</span><br><span class="line">|<span class="string"> routers                                 </span>|</span><br><span class="line">|<span class="string"> schema_version                          </span>|</span><br><span class="line">|<span class="string"> v2_ar_clusters                          </span>|</span><br><span class="line">|<span class="string"> v2_ar_members                           </span>|</span><br><span class="line">|<span class="string"> v2_clusters                             </span>|</span><br><span class="line">|<span class="string"> v2_gr_clusters                          </span>|</span><br><span class="line">|<span class="string"> v2_instances                            </span>|</span><br><span class="line">|<span class="string"> v2_router_rest_accounts                 </span>|</span><br><span class="line">|<span class="string"> v2_routers                              </span>|</span><br><span class="line">|<span class="string"> v2_this_instance                        </span>|</span><br><span class="line">+-----------------------------------------+</span><br><span class="line">15 rows in set (0.01 sec)</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="mysqlrouter"><a href="#mysqlrouter" class="headerlink" title="mysqlrouter"></a>mysqlrouter</h1><h2 id="用户权限"><a href="#用户权限" class="headerlink" title="用户权限"></a>用户权限</h2><p>指定任意一个实例，根据集群元数据 自动生成 router 的相关配置；所以用于启动MySQLrouter的账号（可以是超级账号，也可以是有权限的普通账号） 必须对源数据库有权限；</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span>, <span class="keyword">EXECUTE</span> <span class="keyword">ON</span> mysql_innodb_cluster_metadata.* <span class="keyword">TO</span> <span class="string">'mysql_router1_3crooltaqbd0'</span>@<span class="string">'%'</span>": Access denied for user 'root'@'192.168.184.40' to database 'mysql_innodb_cluster_metadata'</span><br></pre></td></tr></table></figure>
+<h2 id="启动命令"><a href="#启动命令" class="headerlink" title="启动命令"></a>启动命令</h2><p>指定 router 的安装目录；指定集群中的任意一个实例；</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[root(cuigenlu)@bjm6-<span class="number">184</span>-<span class="number">40</span> bin]# ./mysqlrouter --bootstrap localhos<span class="variable">t:3008</span> --directory /work/myrouter --force --user root</span><br><span class="line">Please enter MySQL password <span class="keyword">for</span> roo<span class="variable">t:</span></span><br><span class="line"># Bootstrapping MySQL Router instance at <span class="string">'/work/myrouter'</span>...</span><br><span class="line"></span><br><span class="line">- Creating account(s) (<span class="keyword">only</span> those that are needed, <span class="keyword">if</span> any)</span><br><span class="line">- Verifying account (using it <span class="keyword">to</span> run SQL queries that would <span class="keyword">be</span> run by Router)</span><br><span class="line">- Storing account in keyring</span><br><span class="line">- Adjusting permissions of generated <span class="keyword">files</span></span><br><span class="line">- Creating configuration /work/myrouter/mysqlrouter.<span class="keyword">conf</span></span><br><span class="line"></span><br><span class="line"># MySQL Router configured <span class="keyword">for</span> the InnoDB Cluster <span class="string">'testcluster'</span></span><br><span class="line"></span><br><span class="line">After this MySQL Router <span class="built_in">has</span> been started with the generated configuration</span><br><span class="line"></span><br><span class="line">    $ ./mysqlrouter -<span class="keyword">c</span> /work/myrouter/mysqlrouter.<span class="keyword">conf</span></span><br><span class="line"></span><br><span class="line">the cluster <span class="string">'testcluster'</span> can <span class="keyword">be</span> reached by connecting <span class="keyword">to</span>:</span><br><span class="line"></span><br><span class="line">## MySQL Classic protocol</span><br><span class="line"></span><br><span class="line">- Read/Write Connection<span class="variable">s:</span> localhos<span class="variable">t:6446</span></span><br><span class="line">- Read/Only Connection<span class="variable">s:</span>  localhos<span class="variable">t:6447</span></span><br><span class="line"></span><br><span class="line">## MySQL <span class="keyword">X</span> protocol</span><br><span class="line"></span><br><span class="line">- Read/Write Connection<span class="variable">s:</span> localhos<span class="variable">t:64460</span></span><br><span class="line">- Read/Only Connection<span class="variable">s:</span>  localhos<span class="variable">t:64470</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="生成目录文件"><a href="#生成目录文件" class="headerlink" title="生成目录文件"></a>生成目录文件</h2><p>/work/myrouter/<br>├── data<br>│   ├── keyring<br>│   └── state.json<br>├── log<br>│   └── mysqlrouter.log<br>├── mysqlrouter.conf<br>├── mysqlrouter.key<br>├── run<br>├── start.sh<br>└── stop.sh</p>
+<h2 id="查看配置"><a href="#查看配置" class="headerlink" title="查看配置"></a>查看配置</h2><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">cat  mysqlrouter.conf</span><br><span class="line"><span class="comment"># File automatically generated during MySQL Router bootstrap</span></span><br><span class="line">[DEFAULT]</span><br><span class="line"><span class="attribute">user</span>=root</span><br><span class="line"><span class="attribute">logging_folder</span>=/work/myrouter/log</span><br><span class="line"><span class="attribute">runtime_folder</span>=/work/myrouter/run</span><br><span class="line"><span class="attribute">data_folder</span>=/work/myrouter/data</span><br><span class="line"><span class="attribute">keyring_path</span>=/work/myrouter/data/keyring</span><br><span class="line"><span class="attribute">master_key_path</span>=/work/myrouter/mysqlrouter.key</span><br><span class="line"><span class="attribute">connect_timeout</span>=15</span><br><span class="line"><span class="attribute">read_timeout</span>=30</span><br><span class="line"><span class="attribute">dynamic_state</span>=/work/myrouter/data/state.json</span><br><span class="line"></span><br><span class="line">[logger]</span><br><span class="line">level = INFO</span><br><span class="line"></span><br><span class="line">[metadata_cache:testcluster]</span><br><span class="line"><span class="attribute">cluster_type</span>=gr</span><br><span class="line"><span class="attribute">router_id</span>=1</span><br><span class="line"><span class="attribute">user</span>=mysql_router1_mqehrdp7cykn</span><br><span class="line"><span class="attribute">metadata_cluster</span>=testcluster</span><br><span class="line"><span class="attribute">ttl</span>=0.5</span><br><span class="line"><span class="attribute">use_gr_notifications</span>=0</span><br><span class="line"></span><br><span class="line">[routing:testcluster_rw]</span><br><span class="line"><span class="attribute">bind_address</span>=0.0.0.0</span><br><span class="line"><span class="attribute">bind_port</span>=6446</span><br><span class="line"><span class="attribute">destinations</span>=metadata-cache://testcluster/?role=PRIMARY</span><br><span class="line"><span class="attribute">routing_strategy</span>=first-available</span><br><span class="line"><span class="attribute">protocol</span>=classic</span><br><span class="line"></span><br><span class="line">[routing:testcluster_ro]</span><br><span class="line"><span class="attribute">bind_address</span>=0.0.0.0</span><br><span class="line"><span class="attribute">bind_port</span>=6447</span><br><span class="line"><span class="attribute">destinations</span>=metadata-cache://testcluster/?role=SECONDARY</span><br><span class="line"><span class="attribute">routing_strategy</span>=round-robin-with-fallback</span><br><span class="line"><span class="attribute">protocol</span>=classic</span><br><span class="line"></span><br><span class="line">[routing:testcluster_x_rw]</span><br><span class="line"><span class="attribute">bind_address</span>=0.0.0.0</span><br><span class="line"><span class="attribute">bind_port</span>=64460</span><br><span class="line"><span class="attribute">destinations</span>=metadata-cache://testcluster/?role=PRIMARY</span><br><span class="line"><span class="attribute">routing_strategy</span>=first-available</span><br><span class="line"><span class="attribute">protocol</span>=x</span><br><span class="line"></span><br><span class="line">[routing:testcluster_x_ro]</span><br><span class="line"><span class="attribute">bind_address</span>=0.0.0.0</span><br><span class="line"><span class="attribute">bind_port</span>=64470</span><br><span class="line"><span class="attribute">destinations</span>=metadata-cache://testcluster/?role=SECONDARY</span><br><span class="line"><span class="attribute">routing_strategy</span>=round-robin-with-fallback</span><br><span class="line"><span class="attribute">protocol</span>=x</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="遇到问题"><a href="#遇到问题" class="headerlink" title="遇到问题"></a>遇到问题</h2><h3 id="P01"><a href="#P01" class="headerlink" title="P01"></a>P01</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root(cuigenlu)@bjm6-184-40 bin]# ./mysqlrouter --bootstrap 192.168.184.40:3008 --directory /work/myrouter --user root</span><br><span class="line">Please enter MySQL password <span class="keyword">for</span> root:</span><br><span class="line"><span class="comment"># Bootstrapping MySQL Router instance at '/work/myrouter'...</span></span><br><span class="line"></span><br><span class="line">- Creating account(s) (only those that are needed, <span class="keyword">if</span> any)</span><br><span class="line">FATAL <span class="builtin-name">ERROR</span> ENCOUNTERED, attempting <span class="keyword">to</span> undo new accounts that were created</span><br><span class="line">- New accounts cleaned up successfully</span><br><span class="line">Error: <span class="builtin-name">Error</span> creating MySQL account <span class="keyword">for</span> router (GRANTs stage): <span class="builtin-name">Error</span> executing MySQL query <span class="string">"GRANT SELECT, EXECUTE ON mysql_innodb_cluster_metadata.* TO 'mysql_router1_3crooltaqbd0'@'%'"</span>: Access denied <span class="keyword">for</span><span class="built_in"> user </span><span class="string">'root'</span>@<span class="string">'192.168.184.40'</span> <span class="keyword">to</span> database <span class="string">'mysql_innodb_cluster_metadata'</span> (1044)</span><br><span class="line"></span><br><span class="line">解决：报错是因为，启动router时，账号没有对元数据的访问权限，先赋权，再启动router</span><br></pre></td></tr></table></figure>
+
+<h3 id="P02"><a href="#P02" class="headerlink" title="P02"></a>P02</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root(cuigenlu)@bjm6-184-40 bin]# ./mysqlrouter --bootstrap localhost:3008 --directory /work/myrouter --user root</span><br><span class="line">Please enter MySQL password <span class="keyword">for</span> root:</span><br><span class="line"><span class="comment"># Bootstrapping MySQL Router instance at '/work/myrouter'...</span></span><br><span class="line"></span><br><span class="line">Error: It appears that a router<span class="built_in"> instance </span>named <span class="string">''</span> has been previously configured <span class="keyword">in</span> this host. <span class="keyword">If</span> that<span class="built_in"> instance </span><span class="literal">no</span> longer exists, use the --force option <span class="keyword">to</span> overwrite it.</span><br><span class="line">解决： 报错是因为之前重复启动过router，有异常信息  用 --force强制覆盖</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/28/mysql8-002-02/" rel="prev" title="MySQL8.0 MGR部署">
+      <i class="fa fa-chevron-left"></i> MySQL8.0 MGR部署
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#InnoDB-Cluster-介绍"><span class="nav-number">1.</span> <span class="nav-text">InnoDB Cluster 介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#InnoDB-Cluster-概述"><span class="nav-number">2.</span> <span class="nav-text">InnoDB Cluster 概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#InnoDB-Cluster-创建"><span class="nav-number">3.</span> <span class="nav-text">InnoDB Cluster 创建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#连接实例"><span class="nav-number">3.1.</span> <span class="nav-text">连接实例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建集群"><span class="nav-number">3.2.</span> <span class="nav-text">创建集群</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查看集群状态"><span class="nav-number">3.3.</span> <span class="nav-text">查看集群状态</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#集群状态"><span class="nav-number">3.3.1.</span> <span class="nav-text">集群状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集群描述"><span class="nav-number">3.3.2.</span> <span class="nav-text">集群描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常用方法"><span class="nav-number">3.3.3.</span> <span class="nav-text">常用方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成集群元数据"><span class="nav-number">3.3.4.</span> <span class="nav-text">生成集群元数据</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mysqlrouter"><span class="nav-number">4.</span> <span class="nav-text">mysqlrouter</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#用户权限"><span class="nav-number">4.1.</span> <span class="nav-text">用户权限</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启动命令"><span class="nav-number">4.2.</span> <span class="nav-text">启动命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成目录文件"><span class="nav-number">4.3.</span> <span class="nav-text">生成目录文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查看配置"><span class="nav-number">4.4.</span> <span class="nav-text">查看配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#遇到问题"><span class="nav-number">4.5.</span> <span class="nav-text">遇到问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#P01"><span class="nav-number">4.5.1.</span> <span class="nav-text">P01</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#P02"><span class="nav-number">4.5.2.</span> <span class="nav-text">P02</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="csoulsi"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">csoulsi</p>
+  <div class="site-description" itemprop="description">远方不一定有诗,但有更好的自己!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://wallenotes.github.io/" title="https:&#x2F;&#x2F;wallenotes.github.io&#x2F;" rel="noopener" target="_blank">walle</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://schnappi618.github.io/" title="https:&#x2F;&#x2F;schnappi618.github.io&#x2F;" rel="noopener" target="_blank">schnappi618</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">csoulsi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  </div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
