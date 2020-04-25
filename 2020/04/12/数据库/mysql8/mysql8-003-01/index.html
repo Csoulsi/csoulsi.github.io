@@ -23,19 +23,19 @@
   <meta name="description" content="InnoDB Cluster 介绍MySQL InnoDB 集群为 MySQL 提供了完整的高可用性解决方案。 MySQL Shell包含AdminAPI，能轻松配置和管理MySQL实例组，组内的每个MySQL实例都运行MGR，MGR提供了InnoDB集群内部数据复制和内置的故障转移功能。 MySQL Router 能够根据部署的集群进行自我配置，将连接客户端的应用转移到后端服务器实例上。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL InnoDB Cluster 实战">
-<meta property="og:url" content="https://csoulsi.github.io/2020/04/12/mysql8-003-01/index.html">
+<meta property="og:url" content="https://csoulsi.github.io/2020/04/12/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql8/mysql8-003-01/index.html">
 <meta property="og:site_name" content="王者荣耀">
 <meta property="og:description" content="InnoDB Cluster 介绍MySQL InnoDB 集群为 MySQL 提供了完整的高可用性解决方案。 MySQL Shell包含AdminAPI，能轻松配置和管理MySQL实例组，组内的每个MySQL实例都运行MGR，MGR提供了InnoDB集群内部数据复制和内置的故障转移功能。 MySQL Router 能够根据部署的集群进行自我配置，将连接客户端的应用转移到后端服务器实例上。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://csoulsi.github.io/2020/04/12/mysql8-003-01/mysql8-003-01.png">
+<meta property="og:image" content="https://csoulsi.github.io/2020/04/12/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql8/mysql8-003-01/mysql8-003-01.png">
 <meta property="article:published_time" content="2020-04-12T04:34:08.000Z">
 <meta property="article:modified_time" content="2020-04-12T13:36:48.692Z">
 <meta property="article:author" content="csoulsi">
 <meta property="article:tag" content="技术">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://csoulsi.github.io/2020/04/12/mysql8-003-01/mysql8-003-01.png">
+<meta name="twitter:image" content="https://csoulsi.github.io/2020/04/12/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql8/mysql8-003-01/mysql8-003-01.png">
 
-<link rel="canonical" href="https://csoulsi.github.io/2020/04/12/mysql8-003-01/">
+<link rel="canonical" href="https://csoulsi.github.io/2020/04/12/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql8/mysql8-003-01/">
 
 
 <script id="page-configurations">
@@ -138,7 +138,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">6</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">7</span></a>
 
   </li>
   </ul>
@@ -168,7 +168,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://csoulsi.github.io/2020/04/12/mysql8-003-01/">
+    <link itemprop="mainEntityOfPage" href="https://csoulsi.github.io/2020/04/12/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql8/mysql8-003-01/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -225,7 +225,7 @@
         <h1 id="InnoDB-Cluster-介绍"><a href="#InnoDB-Cluster-介绍" class="headerlink" title="InnoDB Cluster 介绍"></a>InnoDB Cluster 介绍</h1><p>MySQL InnoDB 集群为 MySQL 提供了完整的高可用性解决方案。 MySQL Shell包含AdminAPI，能轻松配置和管理MySQL实例组，组内的每个MySQL实例都运行MGR，MGR提供了InnoDB集群内部数据复制和内置的故障转移功能。 MySQL Router 能够根据部署的集群进行自我配置，将连接客户端的应用转移到后端服务器实例上。</p>
 <a id="more"></a>
 
-<h1 id="InnoDB-Cluster-概述"><a href="#InnoDB-Cluster-概述" class="headerlink" title="InnoDB Cluster 概述"></a>InnoDB Cluster 概述</h1><img src="/2020/04/12/mysql8-003-01/mysql8-003-01.png" class title="图1 InnoDB Cluster 集群">  
+<h1 id="InnoDB-Cluster-概述"><a href="#InnoDB-Cluster-概述" class="headerlink" title="InnoDB Cluster 概述"></a>InnoDB Cluster 概述</h1><img src="/2020/04/12/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql8/mysql8-003-01/mysql8-003-01.png" class title="图1 InnoDB Cluster 集群">  
 
 <p>如图所示，3个MySQL server 实例，组成了单主模式的高可用集群；MySQL router 负责将客户端应用的连接请求转发到后端MySQL实例上；MySQL Shell包含AdminAPI，可通过dba全局变量部署，配置和管理InnoDB的集群。  </p>
 <h1 id="InnoDB-Cluster-创建"><a href="#InnoDB-Cluster-创建" class="headerlink" title="InnoDB Cluster 创建"></a>InnoDB Cluster 创建</h1><h2 id="连接实例"><a href="#连接实例" class="headerlink" title="连接实例"></a>连接实例</h2><p>通过MySQL shell 连接任意一个实例：<br>cd /opt/soft/mysqlshell<br><strong>./mysqlsh –mysql –uri root@localhost:3008</strong><br>……<br>Server version: 8.0.18 MySQL Community Server - GPL<br>No default schema selected; type \use <schema> to set one.<br><strong>MySQL  localhost:3008 ssl  JS &gt;</strong></schema></p>
@@ -275,10 +275,13 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/03/28/mysql8-002-02/" rel="prev" title="MySQL8.0 MGR部署">
+    <a href="/2020/03/28/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql8/mysql8-002-02/" rel="prev" title="MySQL8.0 MGR部署">
       <i class="fa fa-chevron-left"></i> MySQL8.0 MGR部署
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/18/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql8/mysql8-003-02/" rel="next" title="MySQL Router 高可用">
+      MySQL Router 高可用 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -354,7 +357,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

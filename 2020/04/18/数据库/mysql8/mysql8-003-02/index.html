@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"csoulsi.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="MySQL Router是轻量级的中间件，可在您的应用程序与任何后端MySQL Server之间提供透明的路由。它可以用于多种使用案例，例如通过有效地将数据库流量路由到适当的后端MySQL服务器来提供高可用性和可伸缩性">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL Router 高可用">
+<meta property="og:url" content="https://csoulsi.github.io/2020/04/18/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql8/mysql8-003-02/index.html">
+<meta property="og:site_name" content="王者荣耀">
+<meta property="og:description" content="MySQL Router是轻量级的中间件，可在您的应用程序与任何后端MySQL Server之间提供透明的路由。它可以用于多种使用案例，例如通过有效地将数据库流量路由到适当的后端MySQL服务器来提供高可用性和可伸缩性">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-04-18T14:30:08.000Z">
+<meta property="article:modified_time" content="2020-04-25T07:03:48.052Z">
+<meta property="article:author" content="csoulsi">
+<meta property="article:tag" content="技术">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://csoulsi.github.io/2020/04/18/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql8/mysql8-003-02/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>MySQL Router 高可用 | 王者荣耀</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">王者荣耀</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">记录分享工作的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">1</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">3</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">7</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://csoulsi.github.io/2020/04/18/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql8/mysql8-003-02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="csoulsi">
+      <meta itemprop="description" content="远方不一定有诗,但有更好的自己!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="王者荣耀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MySQL Router 高可用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-18 22:30:08" itemprop="dateCreated datePublished" datetime="2020-04-18T22:30:08+08:00">2020-04-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-25 15:03:48" itemprop="dateModified" datetime="2020-04-25T15:03:48+08:00">2020-04-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL8-0/" itemprop="url" rel="index"><span itemprop="name">MySQL8.0</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id><a href="#" class="headerlink" title></a></h1><p>MySQL Router是轻量级的中间件，可在您的应用程序与任何后端MySQL Server之间提供透明的路由。它可以用于多种使用案例，例如通过有效地将数据库流量路由到适当的后端MySQL服务器来提供高可用性和可伸缩性</p>
+<a id="more"></a>
+<h1 id="MySQL-router-介绍"><a href="#MySQL-router-介绍" class="headerlink" title="MySQL router 介绍"></a>MySQL router 介绍</h1><p>建议的MySQL Router部署与应用程序位于同一主机上,建议将一个MySQL路由器实例部署到用于承载一个客户端应用程序的每台计算机上</p>
+<h2 id="故障转移"><a href="#故障转移" class="headerlink" title="故障转移"></a>故障转移</h2><p>通常，高可用性的MySQL设置由一个主服务器和多个从服务器组成，如果MySQL主服务器不可用，则由应用程序来处理故障转移。使用MySQL Router，将基于负载平衡策略透明地路由应用程序连接，而无需实现自定义应用程序代码。</p>
+<h2 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h2><p>MySQL Router通过在服务器池中分布数据库连接来提供额外的可伸缩性和性能。例如，如果您有一组复制的MySQL服务器，则MySQL Router可以循环方式向它们分发应用程序连接。</p>
+<h2 id="可插拔架构"><a href="#可插拔架构" class="headerlink" title="可插拔架构"></a>可插拔架构</h2><p>MySQL Router的可插拔体系结构使MySQL开发人员可以轻松扩展产品的附加功能，并为MySQL用户提供创建自己的自定义插件的能力，从而提供无限的可能性</p>
+<h1 id="MySQL-router-安装"><a href="#MySQL-router-安装" class="headerlink" title="MySQL router 安装"></a>MySQL router 安装</h1><figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">官方MySQL包：mysql-router<span class="number">-8.0</span><span class="number">.19</span>-linux-glibc2<span class="number">.12</span>-x86_64.tar.xz </span><br><span class="line">解压到：/opt/soft/mysqlrouter8019</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="innodb-集群信息"><a href="#innodb-集群信息" class="headerlink" title="innodb 集群信息"></a>innodb 集群信息</h1><h2 id="MySQL-Server-节点信息"><a href="#MySQL-Server-节点信息" class="headerlink" title="MySQL Server 节点信息"></a>MySQL Server 节点信息</h2><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Hostname</th>
+<th>IP</th>
+<th>Port</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Primary</td>
+<td>bjm6-184-40</td>
+<td>192.168.184.40</td>
+<td>3008</td>
+</tr>
+<tr>
+<td>Second</td>
+<td>bjm6-196-59</td>
+<td>192.168.196.59</td>
+<td>3009</td>
+</tr>
+<tr>
+<td>Second</td>
+<td>bjm6-196-85</td>
+<td>192.168.196.85</td>
+<td>3010</td>
+</tr>
+</tbody></table>
+<h2 id="MySQL-router-节点信息"><a href="#MySQL-router-节点信息" class="headerlink" title="MySQL router 节点信息"></a>MySQL router 节点信息</h2><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Hostname</th>
+<th>IP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>router</td>
+<td>bjm6-184-40</td>
+<td>192.168.184.40</td>
+</tr>
+<tr>
+<td>router</td>
+<td>bjm6-196-59</td>
+<td>192.168.196.59</td>
+</tr>
+</tbody></table>
+<h1 id="创建-router-实例"><a href="#创建-router-实例" class="headerlink" title="创建 router 实例"></a>创建 router 实例</h1><h2 id="创建账号"><a href="#创建账号" class="headerlink" title="创建账号"></a>创建账号</h2><p>Router实例通过，访问–bootstrap指定的集群实例地址（集群中的任意一个节点）获取集群元数据信息。这个访问账号至少需要具备以下最小权限</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> <span class="string">'bootstrapuser'</span>@<span class="string">'%'</span> <span class="keyword">identified</span> <span class="keyword">by</span> <span class="string">'123456'</span>;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">CREATE</span> <span class="keyword">USER</span> <span class="keyword">ON</span> *.* <span class="keyword">TO</span> <span class="string">'bootstrapuser'</span>@<span class="string">'%'</span> <span class="keyword">WITH</span> <span class="keyword">GRANT</span> <span class="keyword">OPTION</span>;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span>, <span class="keyword">INSERT</span>, <span class="keyword">UPDATE</span>, <span class="keyword">DELETE</span> <span class="keyword">ON</span> mysql_innodb_cluster_metadata.* <span class="keyword">TO</span> <span class="string">'bootstrapuser'</span>@<span class="string">'%'</span>;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span> <span class="keyword">ON</span> mysql.user <span class="keyword">TO</span> <span class="string">'bootstrapuser'</span>@<span class="string">'%'</span>;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span> <span class="keyword">ON</span> performance_schema.replication_group_members <span class="keyword">TO</span> <span class="string">'bootstrapuser'</span>@<span class="string">'%'</span>;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span> <span class="keyword">ON</span> performance_schema.replication_group_member_stats <span class="keyword">TO</span> <span class="string">'bootstrapuser'</span>@<span class="string">'%'</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h2 id="引导启动-生成配置文件"><a href="#引导启动-生成配置文件" class="headerlink" title="引导启动 生成配置文件"></a>引导启动 生成配置文件</h2><p>通过 –directory 指定router目录，可以在同一台服务器上创建多个router（1个router只能针对1个集群）；<br>引导过程中会向v2.router表写入路由节点信息。如果指定的是second节点(只读)无法操作，会自动尝试连接primary节点。</p>
+<p>注意：提前创建 router目录</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">[/usr/local/mysqlrouter8019/bin]<span class="comment"># ./mysqlrouter --bootstrap bootstrapuser@192.168.196.59:3009 --directory=/work/myrouter --user=root</span></span><br><span class="line">Please enter MySQL password for bootstrapuser:</span><br><span class="line"><span class="comment"># Bootstrapping MySQL Router instance at '/work/myrouter'...</span></span><br><span class="line"></span><br><span class="line">Executing statements failed <span class="keyword">with</span>: <span class="string">'Error executing MySQL query "INSERT INTO mysql_innodb_cluster_metadata.v2_routers        (address, product_name, router_name) VALUES ('</span>bjm6<span class="number">-196</span><span class="number">-59.58</span>os.org<span class="string">', '</span>MySQL Router<span class="string">', '')": The MySQL server is running with the --read-only option so it cannot execute this statement (1290)'</span> (<span class="number">1290</span>), trying <span class="keyword">to</span> <span class="keyword">connect</span> <span class="keyword">to</span> another node</span><br><span class="line">Fetching Cluster Members</span><br><span class="line">disconnecting <span class="keyword">from</span> mysql-<span class="keyword">server</span></span><br><span class="line">trying <span class="keyword">to</span> <span class="keyword">connect</span> <span class="keyword">to</span> mysql-<span class="keyword">server</span> <span class="keyword">at</span> bjm6<span class="number">-184</span><span class="number">-40.58</span>os.org:<span class="number">3008</span></span><br><span class="line">- Creating <span class="keyword">account</span>(s) (<span class="keyword">only</span> those that <span class="keyword">are</span> needed, <span class="keyword">if</span> <span class="keyword">any</span>)</span><br><span class="line">- Verifying <span class="keyword">account</span> (<span class="keyword">using</span> it <span class="keyword">to</span> run <span class="keyword">SQL</span> queries that would be run <span class="keyword">by</span> Router)</span><br><span class="line">- Storing <span class="keyword">account</span> <span class="keyword">in</span> keyring</span><br><span class="line">- Adjusting permissions <span class="keyword">of</span> <span class="keyword">generated</span> files</span><br><span class="line">- Creating configuration /<span class="keyword">work</span>/myrouter/mysqlrouter.conf</span><br><span class="line"></span><br><span class="line"><span class="comment"># MySQL Router configured for the InnoDB Cluster 'testcluster'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">After</span> this MySQL Router has been started <span class="keyword">with</span> the <span class="keyword">generated</span> configuration</span><br><span class="line"></span><br><span class="line">    $ ./mysqlrouter -c /<span class="keyword">work</span>/myrouter/mysqlrouter.conf</span><br><span class="line"></span><br><span class="line">the cluster <span class="string">'testcluster'</span> can be reached <span class="keyword">by</span> connecting <span class="keyword">to</span>:</span><br><span class="line"></span><br><span class="line"><span class="comment">## MySQL Classic protocol</span></span><br><span class="line"></span><br><span class="line">- <span class="keyword">Read</span>/Write Connections: localhost:<span class="number">6446</span></span><br><span class="line">- <span class="keyword">Read</span>/<span class="keyword">Only</span> Connections:  localhost:<span class="number">6447</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## MySQL X protocol</span></span><br><span class="line"></span><br><span class="line">- <span class="keyword">Read</span>/Write Connections: localhost:<span class="number">64460</span></span><br><span class="line">- <span class="keyword">Read</span>/<span class="keyword">Only</span> Connections:  localhost:<span class="number">64470</span></span><br></pre></td></tr></table></figure>
+<h2 id="生成配置文件"><a href="#生成配置文件" class="headerlink" title="生成配置文件"></a>生成配置文件</h2><figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">/work/myrouter/</span><br><span class="line">├── data</span><br><span class="line">│   ├── keyring</span><br><span class="line">│   └── <span class="keyword">state</span>.json</span><br><span class="line">├── <span class="keyword">log</span></span><br><span class="line">│   └── mysqlrouter.<span class="keyword">log</span></span><br><span class="line">├── mysqlrouter.conf</span><br><span class="line">├── mysqlrouter.key</span><br><span class="line">├── mysqlrouter.pid</span><br><span class="line">├── run</span><br><span class="line">├── start.sh</span><br><span class="line">└── stop.sh</span><br></pre></td></tr></table></figure>
+<h2 id="指定配置文件启动"><a href="#指定配置文件启动" class="headerlink" title="指定配置文件启动"></a>指定配置文件启动</h2><p>执行 start.sh脚本启动，客户端就可以通过 router访问集群了</p>
+<blockquote>
+<p>/work/myrouter/start.sh </p>
+</blockquote>
+<h2 id="一个集群启动两个router"><a href="#一个集群启动两个router" class="headerlink" title="一个集群启动两个router"></a>一个集群启动两个router</h2><p>针对testcluster集群，安照上述步骤 部署两个router节点；<br>集群的第二个节点启动时，会复用第一个router里的部分配置，比如：访问信息端口。<br>但是配置里生成的user是不同的，每次初始化启动router会生成新的，这个user用于router和集群元数据的交互。</p>
+<h2 id="账号"><a href="#账号" class="headerlink" title="账号"></a>账号</h2><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt;  select user,host from mysql.user where user like <span class="emphasis">'mysql_router1\_%'</span>;  </span><br><span class="line"><span class="code">+----------------------------+</span>------+</span><br><span class="line">| user                       | host |</span><br><span class="line"><span class="code">+----------------------------+</span>------+</span><br><span class="line">| mysql<span class="emphasis">_router1_</span>2zv093v642oo | %    |</span><br><span class="line">| mysql<span class="emphasis">_router1_</span>mqehrdp7cykn | %    |</span><br><span class="line">| mysql<span class="emphasis">_router1_</span>pxor3vv2tzhz | %    |</span><br><span class="line"><span class="code">+----------------------------+</span>------+</span><br><span class="line">3 rows in set (0.01 sec)</span><br></pre></td></tr></table></figure>
+<h2 id="账号权限"><a href="#账号权限" class="headerlink" title="账号权限"></a>账号权限</h2><figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt;  show grants for mysql_router1_mqehrdp7cykn@'%';</span><br><span class="line">+------------------------------------------------------------------------------------------------------------------+</span><br><span class="line">| Grants for mysql_router1_mqehrdp7cykn@%                                                                          |</span><br><span class="line">+------------------------------------------------------------------------------------------------------------------+</span><br><span class="line">| GRANT USAGE ON *.* TO `mysql_router1_mqehrdp7cykn`@`%`                                                           |</span><br><span class="line">| GRANT <span class="keyword">SELECT</span>, <span class="keyword">EXECUTE</span> <span class="keyword">ON</span> <span class="symbol">`mysql_innodb_cluster_metadata`</span>.* <span class="keyword">TO</span> <span class="symbol">`mysql_router1_mqehrdp7cykn`</span>@<span class="symbol">`%`</span>                   |</span><br><span class="line">| <span class="keyword">GRANT</span> <span class="keyword">INSERT</span>, <span class="keyword">UPDATE</span>, <span class="keyword">DELETE</span> <span class="keyword">ON</span> <span class="symbol">`mysql_innodb_cluster_metadata`</span>.<span class="symbol">`routers`</span> <span class="keyword">TO</span> <span class="symbol">`mysql_router1_mqehrdp7cykn`</span>@<span class="symbol">`%`</span>    |</span><br><span class="line">| <span class="keyword">GRANT</span> <span class="keyword">INSERT</span>, <span class="keyword">UPDATE</span>, <span class="keyword">DELETE</span> <span class="keyword">ON</span> <span class="symbol">`mysql_innodb_cluster_metadata`</span>.<span class="symbol">`v2_routers`</span> <span class="keyword">TO</span> <span class="symbol">`mysql_router1_mqehrdp7cykn`</span>@<span class="symbol">`%`</span> |</span><br><span class="line">| <span class="keyword">GRANT</span> <span class="keyword">SELECT</span> <span class="keyword">ON</span> <span class="symbol">`performance_schema`</span>.<span class="symbol">`global_variables`</span> <span class="keyword">TO</span> <span class="symbol">`mysql_router1_mqehrdp7cykn`</span>@<span class="symbol">`%`</span>                      |</span><br><span class="line">| <span class="keyword">GRANT</span> <span class="keyword">SELECT</span> <span class="keyword">ON</span> <span class="symbol">`performance_schema`</span>.<span class="symbol">`replication_group_member_stats`</span> <span class="keyword">TO</span> <span class="symbol">`mysql_router1_mqehrdp7cykn`</span>@<span class="symbol">`%`</span>        |</span><br><span class="line">| <span class="keyword">GRANT</span> <span class="keyword">SELECT</span> <span class="keyword">ON</span> <span class="symbol">`performance_schema`</span>.<span class="symbol">`replication_group_members`</span> <span class="keyword">TO</span> <span class="symbol">`mysql_router1_mqehrdp7cykn`</span>@<span class="symbol">`%`</span>             |</span><br><span class="line">+------------------------------------------------------------------------------------------------------------------+</span><br><span class="line"><span class="number">7</span> rows <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.01</span> sec)</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="通过MySQLshell查看-集群的router列表"><a href="#通过MySQLshell查看-集群的router列表" class="headerlink" title="通过MySQLshell查看 集群的router列表"></a>通过MySQLshell查看 集群的router列表</h2><p>通过登录MySQLshell查看：在 192.168.184.40 上执行<br>/opt/soft/mysqlshell/bin/mysqlsh –mysql -uri root@localhost:3008 </p>
+<p>可以看到属于testcluster集群的router信息 </p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"> <span class="string">MySQL</span>  <span class="number">192.168</span><span class="number">.196</span><span class="number">.59</span><span class="string">:3009</span> <span class="string">ssl</span>  <span class="string">JS</span> <span class="string">&gt;</span> <span class="string">cluster.listRouters()</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">    <span class="attr">"clusterName":</span> <span class="string">"testcluster"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"routers":</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="attr">"bjm6-184-40.58os.org::":</span> <span class="string">&#123;</span></span><br><span class="line">            <span class="attr">"hostname":</span> <span class="string">"bjm6-184-40.58os.org"</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"lastCheckIn":</span> <span class="string">"2020-04-23 17:25:00"</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"roPort":</span> <span class="number">6447</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"roXPort":</span> <span class="number">64470</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"rwPort":</span> <span class="number">6446</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"rwXPort":</span> <span class="number">64460</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"version":</span> <span class="string">"8.0.19"</span></span><br><span class="line">        <span class="string">&#125;,</span></span><br><span class="line">        <span class="attr">"bjm6-196-59.58os.org::":</span> <span class="string">&#123;</span></span><br><span class="line">            <span class="attr">"hostname":</span> <span class="string">"bjm6-196-59.58os.org"</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"lastCheckIn":</span> <span class="string">"2020-04-23 17:25:03"</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"roPort":</span> <span class="number">6447</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"roXPort":</span> <span class="number">64470</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"rwPort":</span> <span class="number">6446</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"rwXPort":</span> <span class="number">64460</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"version":</span> <span class="string">"8.0.19"</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"> <span class="string">MySQL</span>  <span class="number">192.168</span><span class="number">.196</span><span class="number">.59</span><span class="string">:3009</span> <span class="string">ssl</span>  <span class="string">JS</span> <span class="string">&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="登录MySQL-查看router信息"><a href="#登录MySQL-查看router信息" class="headerlink" title="登录MySQL 查看router信息"></a>登录MySQL 查看router信息</h2><p>router初始引导后，会自动向库里插入router记录<br> <figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> mysql&gt; select * from mysql_innodb_cluster_metadata.routers;</span><br><span class="line">+<span class="params">-----------</span>+<span class="params">-------------</span>+<span class="params">--------------</span>+<span class="params">----------------------</span>+<span class="params">---------</span>+<span class="params">---------------------</span>+<span class="params">---------------------------------------------------------------------------------------------------------------------------------------------</span>+<span class="params">--------------------------------------</span>+<span class="params">---------</span>+</span><br><span class="line">| router_id | router_name | product_name | address              | <span class="keyword">version</span> | last_check_in       | attributes                                                                                                                                  | cluster_id                           | options |</span><br><span class="line">+<span class="params">-----------</span>+<span class="params">-------------</span>+<span class="params">--------------</span>+<span class="params">----------------------</span>+<span class="params">---------</span>+<span class="params">---------------------</span>+<span class="params">---------------------------------------------------------------------------------------------------------------------------------------------</span>+<span class="params">--------------------------------------</span>+<span class="params">---------</span>+</span><br><span class="line">|         1 |             | MySQL Router | bjm6-184-40.58os.org | 8.0.19  | 2020-04-23 17<span class="function">:25</span><span class="function">:42</span> | &#123;<span class="string">"ROEndpoint"</span>: <span class="string">"6447"</span>, <span class="string">"RWEndpoint"</span>: <span class="string">"6446"</span>, <span class="string">"ROXEndpoint"</span>: <span class="string">"64470"</span>, <span class="string">"RWXEndpoint"</span>: <span class="string">"64460"</span>, <span class="string">"MetadataUser"</span>: <span class="string">"mysql_router1_pxor3vv2tzhz"</span>&#125;  | 7341fcc6-7c71-11ea-858b-74867aea62bc | NULL    |</span><br><span class="line">|        17 |             | MySQL Router | bjm6-196-59.58os.org | 8.0.19  | 2020-04-23 17<span class="function">:25</span><span class="function">:40</span> | &#123;<span class="string">"ROEndpoint"</span>: <span class="string">"6447"</span>, <span class="string">"RWEndpoint"</span>: <span class="string">"6446"</span>, <span class="string">"ROXEndpoint"</span>: <span class="string">"64470"</span>, <span class="string">"RWXEndpoint"</span>: <span class="string">"64460"</span>, <span class="string">"MetadataUser"</span>: <span class="string">"mysql_router17_l2g9bbewgpxc"</span>&#125; | 7341fcc6-7c71-11ea-858b-74867aea62bc | NULL    |</span><br><span class="line">+<span class="params">-----------</span>+<span class="params">-------------</span>+<span class="params">--------------</span>+<span class="params">----------------------</span>+<span class="params">---------</span>+<span class="params">---------------------</span>+<span class="params">---------------------------------------------------------------------------------------------------------------------------------------------</span>+<span class="params">--------------------------------------</span>+<span class="params">---------</span>+</span><br><span class="line">2 rows in <span class="keyword">set</span> <span class="params">(0.00 sec)</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="测试连接"><a href="#测试连接" class="headerlink" title="测试连接"></a>测试连接</h1><p>登录 MySQL3008 primary节点，手动建立dbtest01库，和对应的业务访问账号：test01_rw.</p>
+<p>访问router的连接信息 </p>
+<blockquote>
+<p>opt/soft/mysql80/bin/mysql -utest01_rw -p -h192.168.184.40 -P6446 </p>
+</blockquote>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#通过查看account表，发现test01_rw连接集群的IP，是router地址 ；</span></span><br><span class="line"><span class="comment">#并且 CURRENT_CONNECTIONS 可以看到连接个数； </span></span><br><span class="line">mysql&gt; select <span class="symbol">*</span> from performance_schema.accounts;</span><br><span class="line">+----------------------------+----------------------+---------------------+-------------------+</span><br><span class="line">|<span class="string"> USER                       </span>|<span class="string"> HOST                 </span>|<span class="string"> CURRENT_CONNECTIONS </span>|<span class="string"> TOTAL_CONNECTIONS </span>|</span><br><span class="line">+----------------------------+----------------------+---------------------+-------------------+sss</span><br><span class="line">|<span class="string"> NULL                       </span>|<span class="string"> NULL                 </span>|<span class="string">                  42 </span>|<span class="string">                85 </span>|</span><br><span class="line">|<span class="string"> root                       </span>|<span class="string"> localhost            </span>|<span class="string">                   8 </span>|<span class="string">                61 </span>|</span><br><span class="line">|<span class="string"> rpl_user                   </span>|<span class="string"> bjm6-196-59.58os.org </span>|<span class="string">                   0 </span>|<span class="string">                 1 </span>|</span><br><span class="line">|<span class="string"> rpl_user                   </span>|<span class="string"> bjm6-196-85.58os.org </span>|<span class="string">                   0 </span>|<span class="string">                 1 </span>|</span><br><span class="line">|<span class="string"> routeruser                 </span>|<span class="string"> bjm6-184-40.58os.org </span>|<span class="string">                   0 </span>|<span class="string">                 1 </span>|</span><br><span class="line">|<span class="string"> root                       </span>|<span class="string"> bjm6-184-40.58os.org </span>|<span class="string">                   0 </span>|<span class="string">                 9 </span>|</span><br><span class="line">|<span class="string"> bootstrapuser              </span>|<span class="string"> bjm6-196-59.58os.org </span>|<span class="string">                   0 </span>|<span class="string">                 4 </span>|</span><br><span class="line">|<span class="string"> root                       </span>|<span class="string"> bjm6-196-59.58os.org </span>|<span class="string">                   0 </span>|<span class="string">                11 </span>|</span><br><span class="line">|<span class="string"> mysql_router1_mqehrdp7cykn </span>|<span class="string"> bjm6-184-40.58os.org </span>|<span class="string">                   1 </span>|<span class="string">            364983 </span>|</span><br><span class="line">|<span class="string"> mysql_router1_pxor3vv2tzhz </span>|<span class="string"> bjm6-196-59.58os.org </span>|<span class="string">                   1 </span>|<span class="string">              1970 </span>|</span><br><span class="line">|<span class="string"> test01_rw                  </span>|<span class="string"> bjm6-184-40.58os.org </span>|<span class="string">                   2 </span>|<span class="string">                 6 </span>|</span><br><span class="line">|<span class="string"> test01_rw                  </span>|<span class="string"> bjm6-196-59.58os.org </span>|<span class="string">                   0 </span>|<span class="string">                 4 </span>|</span><br><span class="line">+----------------------------+----------------------+---------------------+-------------------+</span><br><span class="line">14 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/12/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql8/mysql8-003-01/" rel="prev" title="MySQL InnoDB Cluster 实战">
+      <i class="fa fa-chevron-left"></i> MySQL InnoDB Cluster 实战
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MySQL-router-介绍"><span class="nav-number">2.</span> <span class="nav-text">MySQL router 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#故障转移"><span class="nav-number">2.1.</span> <span class="nav-text">故障转移</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#负载均衡"><span class="nav-number">2.2.</span> <span class="nav-text">负载均衡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可插拔架构"><span class="nav-number">2.3.</span> <span class="nav-text">可插拔架构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MySQL-router-安装"><span class="nav-number">3.</span> <span class="nav-text">MySQL router 安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#innodb-集群信息"><span class="nav-number">4.</span> <span class="nav-text">innodb 集群信息</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL-Server-节点信息"><span class="nav-number">4.1.</span> <span class="nav-text">MySQL Server 节点信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL-router-节点信息"><span class="nav-number">4.2.</span> <span class="nav-text">MySQL router 节点信息</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建-router-实例"><span class="nav-number">5.</span> <span class="nav-text">创建 router 实例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建账号"><span class="nav-number">5.1.</span> <span class="nav-text">创建账号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#引导启动-生成配置文件"><span class="nav-number">5.2.</span> <span class="nav-text">引导启动 生成配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成配置文件"><span class="nav-number">5.3.</span> <span class="nav-text">生成配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#指定配置文件启动"><span class="nav-number">5.4.</span> <span class="nav-text">指定配置文件启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个集群启动两个router"><span class="nav-number">5.5.</span> <span class="nav-text">一个集群启动两个router</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#账号"><span class="nav-number">5.6.</span> <span class="nav-text">账号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#账号权限"><span class="nav-number">5.7.</span> <span class="nav-text">账号权限</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通过MySQLshell查看-集群的router列表"><span class="nav-number">5.8.</span> <span class="nav-text">通过MySQLshell查看 集群的router列表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#登录MySQL-查看router信息"><span class="nav-number">5.9.</span> <span class="nav-text">登录MySQL 查看router信息</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#测试连接"><span class="nav-number">6.</span> <span class="nav-text">测试连接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="csoulsi"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">csoulsi</p>
+  <div class="site-description" itemprop="description">远方不一定有诗,但有更好的自己!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://wallenotes.github.io/" title="https:&#x2F;&#x2F;wallenotes.github.io&#x2F;" rel="noopener" target="_blank">walle</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://schnappi618.github.io/" title="https:&#x2F;&#x2F;schnappi618.github.io&#x2F;" rel="noopener" target="_blank">schnappi618</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">csoulsi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  </div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
